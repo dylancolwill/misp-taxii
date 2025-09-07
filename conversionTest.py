@@ -7,9 +7,12 @@ mispObject = misp.connect()
 
 # print(mispConversion.stix(misp.search(controller='events', limit=1)))
 
-json =misp.getMispEventsApi()
-print(mispObject.search(controller='events', limit=1)[0])
-print(json[0])
-# print(conversion.eventToStix(json[0]))
+json =misp.get_misp_events()
+# print(mispObject.search(controller='events', limit=1)[0])
+# print(json[0])
+
+print(conversion.misp_to_stix(json[0]))
 
 # print(conversion.eventToStix(mispObject.search(controller='events', limit=1)[0]))
+
+# print(misp.queryMispApi("/events/1/stix"))

@@ -4,27 +4,29 @@ import requests
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-auth="61jDTaLYkKuPdNGc9DATaEa6DyM5N3Sf5CynNTl6"
+auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
+
+misp_ip="https://13.239.5.152"
 
 def connect():
     # using pymisp package, returns callable misp object
-    misp = PyMISP("https://localhost:8443", auth, False)
+    misp = PyMISP(misp_ip, auth, False)
     return misp
 
-def queryMispApi(url): 
+def query_misp_api(endpoint): 
     # base for api get requests
     # takes api endpoint
     headers = {
         "Authorization": auth,
         "Accept": "application/json"
     }
-    response = requests.get(url, headers=headers, verify=False)
+    response = requests.get(f"{misp_ip}{endpoint}", headers=headers, verify=False)
     return response
 
-def getMispEventsApi():
+def get_misp_events():
     # queries api for events, returns json
     # dont know how many events this returns
-    events =queryMispApi("https://localhost:8443/events/index")
+    events =query_misp_api("/events/index")
     return events.json()
     
 # events = misp.search(limit=5)
