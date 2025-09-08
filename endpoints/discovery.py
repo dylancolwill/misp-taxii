@@ -12,6 +12,7 @@ discovery_info= {
 }
 
 
+
 # async def get_discovery(user=Depends(AUTHFUNC)):
 # when figured out auth
 @router.get("/taxii2/", tags=["Discovery"])
