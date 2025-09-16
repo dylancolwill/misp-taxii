@@ -9,14 +9,15 @@ auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
 
 misp_ip="https://13.239.5.152"
 
+# DONT NEED, AUTH IN EVERY REQUEST INSTEAD
 # init
-misp = ExpandedPyMISP(misp_ip, auth)
+# misp = ExpandedPyMISP(misp_ip, auth)
 
-def connect():
-    """
-    return callable misp client to use in other modules
-    """
-    return misp
+# def connect():
+#     """
+#     return callable misp client to use in other modules
+#     """
+#     return misp
 
 def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     """
@@ -36,17 +37,17 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
 
     try:
         if method.upper() == "GET":
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, verify=False)
         elif method.upper() == "POST":
-            response = requests.post(url, headers=headers, json=data)
+            response = requests.post(url, headers=headers, verify=False, json=data)
         elif method.upper() == "PUT":
-            response = requests.put(url, headers=headers, json=data)
+            response = requests.put(url, headers=headers, verify=False, json=data)
         elif method.upper() == "DELETE":
-            response = requests.delete(url, headers=headers)
+            response = requests.delete(url, headers=headers, verify=False)
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
     except Exception as e:
-        raise RuntimeError(f"Error calling MISP API {endpoint}: {e}")
+        raise RuntimeError(f"Error calling MISP {endpoint}: {e}")
 
     # raise http errors
     response.raise_for_status()
