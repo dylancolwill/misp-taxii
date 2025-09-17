@@ -31,3 +31,4 @@ def get_misp_collections(headers= None):
         })
     
     return collections
+
