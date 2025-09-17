@@ -22,8 +22,9 @@ misp_ip="https://13.239.5.152"
 
 def get_headers(request: Request):
     api_key = request.headers.get("Authorization") 
-    if not api_key:
-        raise HTTPException(status_code=401, detail="Missing MISP API key")
+    print(f"GETHEADER{api_key}")
+    # if not api_key:
+    #     raise HTTPException(status_code=401, detail="Missing MISP API key")
     return dict(request.headers)
 
 def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
@@ -43,8 +44,11 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
         
     # get api from header
     api_key = headers.get("Authorization")
-    if not api_key:
-        raise HTTPException(status_code=401, detail="Missing MISP API key")
+    print(f"QUERY{auth}")
+    # print(api_key)
+    
+    # if not api_key:
+    #     raise HTTPException(status_code=401, detail="Missing MISP API key")
 
     url = f"{misp_ip}{endpoint}"
 
