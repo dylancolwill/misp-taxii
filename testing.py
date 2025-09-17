@@ -5,10 +5,10 @@ auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
 
 headers = {
             "Authorization": auth,
-            "Accept": "application/json",
+            "Accept": "application/taxii+json;version=2.1",
             "Content-Type": "application/json"
         }
 
 resp = requests.get(url, headers=headers)
-print(resp.status_code)
+# print(resp.status_code)
 print(resp.json())
