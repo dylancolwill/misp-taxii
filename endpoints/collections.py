@@ -1,45 +1,33 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
-from typing import List
 import functions.misp as misp
 import requests
 
 router = APIRouter()
 
-taxii_accept = "application/taxii+json;version=2.1"
-taxii_content_type = "application/taxii+json;version=2.1"
-
-
-@router.get("/taxii2/api1/collections/", tags=["Collections"])
-async def get_collections(headers: dict = Depends(misp.get_headers)):
+@router.get('/taxii2/api1/collections/', tags=['Collections'])
+def get_misp_collections(headers= None):
     """
-    TAXII 2.1 Collections endpoint
-    Returns all collections (mapped from MISP events)
+    Fetch all MISP tags and convert them into TAXII 2.1 collections.
+    Each tag becomes a collection.
     """
+    print('start')
     try:
-        # get all events
-        misp_response = misp.query_misp_api("/events/index", headers=headers)
-    except requests.exceptions.HTTPError as e:
-        status_code = e.response.status_code
-        detail = e.response.json() if e.response.headers.get("Content-Type") == "application/json" else str(e)
-        if status_code in [401, 403]:
-            raise HTTPException(status_code=status_code, detail=detail)
-        else:
-            raise HTTPException(status_code=500, detail=detail)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        response = misp.query_misp_api('/tags/index', headers=headers)
+        # response.raise_for_status()
+        print(response)
+        tags = response.get('Tag')  #returns a list of tag dicts
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f'MISP request failed: {e}')
 
-    # convert misp events to taxii collections
     collections = []
-    for event in misp_response:
+    for tag in tags:
         collections.append({
-            "id": str(event.get("id")),
-            "title": event.get("info", "Unnamed Collection"),
-            "description": event.get("Orgc", {}).get("name", ""),  # optional
-            "can_read": True,   # assume api key allows read NEED TO FIX
-            "can_write": False, # default
-            "media_types": ["application/stix+json;version=2.1"]
+            'id': tag['id'], #using tag name as id, imo best solution
+            'title': tag['name'],
+            'description': tag.get('description', None),
+            'can_read': True, #INCLUDE FUNCTION TO CHECK PERMS FO APIKEY
+            'can_write': False,#SAME
+            'media_types': ['application/stix+json;version=2.1']
         })
-
-    return {
-        "collections": collections
-    }
+    
+    return collections
