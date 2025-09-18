@@ -28,6 +28,7 @@ async def get_collections(headers: dict = Depends(misp.get_headers)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+    
     # convert misp events to taxii collections
     collections = []
     for event in misp_response:
@@ -43,3 +44,4 @@ async def get_collections(headers: dict = Depends(misp.get_headers)):
     return {
         "collections": collections
     }
+
