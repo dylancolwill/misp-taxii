@@ -26,7 +26,7 @@ def get_misp_collections(headers= None):
     collections = []
     for tag in tags:
         collections.append({
-            'id': conversion.str_to_uuid(tags['id']), #convert id to uuid
+            'id': conversion.str_to_uuid(tag['id']), #convert id to uuid
             'title': tag['name'],
             'description': tag.get('description', None),
             'can_read': True, #if user got this far through request, can access
@@ -58,7 +58,7 @@ def get_misp_collections(collection_id = int, headers= None):
         raise HTTPException(status_code=404, detail='Collection not found')
     
     return {
-        'id': conversion.str_to_uuid(tags['id']), #convert id to uuid
+        'id': conversion.str_to_uuid(tag['id']), #convert id to uuid
         'title': tag['name'],
         'description': tag.get('description', None),
         'can_read': True, #if user got this far through request, can access
