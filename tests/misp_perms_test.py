@@ -1,8 +1,7 @@
 from functions import misp
 import creds
 
-# incorrect auth
-# auth="ABCDEF"
+url = "http://127.0.0.1:8000/taxii2/api1/collections/"
 
 headers = {
             "Authorization": creds.get_creds(),
@@ -10,9 +9,11 @@ headers = {
             "Content-Type": "application/json"
         }
 
+data = None
+
 try:
-    data = misp.query_misp_api("/events", headers=headers)
+    data = misp.query_misp_api("/users/view/me", headers=headers)
 except Exception as e:
     print("Error:", e)
     
-# print(data)
+print(data['Role']['perm_modify'])

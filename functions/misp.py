@@ -20,6 +20,17 @@ misp_ip="https://13.239.5.152"
 #     """
 #     return misp
 
+def get_user_perms(headers=None):
+    """
+    function to check if the user has writing perms
+    required for some endpoints
+    """
+    
+    response = query_misp_api("/users/view/me", headers=headers)
+    perm_modify = response['Role']['perm_modify']
+    
+    return perm_modify
+
 def get_headers(request: Request):
     api_key = request.headers.get("Authorization") 
     # print(f"GETHEADER{api_key}")
