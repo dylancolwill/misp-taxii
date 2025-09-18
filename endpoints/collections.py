@@ -19,14 +19,15 @@ def get_misp_collections(headers= None):
     except requests.exceptions.RequestException as e:
         raise RuntimeError(f'MISP request failed: {e}')
 
+    can_write=misp.get_user_perms(headers=headers) #get the user perms from function in core
     collections = []
     for tag in tags:
         collections.append({
-            'id': tag['id'], #using tag name as id, imo best solution
+            'id': tag['id'],
             'title': tag['name'],
             'description': tag.get('description', None),
-            'can_read': True, #INCLUDE FUNCTION TO CHECK PERMS FO APIKEY
-            'can_write': False,#SAME
+            'can_read': True, #if user got this far through request, can access
+            'can_write': can_write,
             'media_types': ['application/stix+json;version=2.1']
         })
     
