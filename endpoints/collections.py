@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
 import functions.misp as misp
+import functions.conversion as conversion
 import requests
+import uuid
 
 router = APIRouter()
 
@@ -24,7 +26,7 @@ def get_misp_collections(headers= None):
     collections = []
     for tag in tags:
         collections.append({
-            'id': tag['id'],
+            'id': conversion.str_to_uuid(tags['id']), #convert id to uuid
             'title': tag['name'],
             'description': tag.get('description', None),
             'can_read': True, #if user got this far through request, can access
@@ -37,8 +39,7 @@ def get_misp_collections(headers= None):
 @router.get('/taxii2/api1/collections/{collection_id}', tags=['Collections'])
 def get_misp_collections(collection_id = int, headers= None):
     """
-    Fetch all MISP tags and convert them into TAXII 2.1 collections.
-    Each tag becomes a collection.
+    since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
     """
     print('start')
     try:
@@ -52,12 +53,12 @@ def get_misp_collections(collection_id = int, headers= None):
     can_write=misp.get_user_perms(headers=headers) #get the user perms from function in core
     
     # find matching tag
-    tag = next((t for t in tags if str(t['id']) == collection_id), None)
+    tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_id), None)
     if not tag:
         raise HTTPException(status_code=404, detail='Collection not found')
     
     return {
-        'id': tag['id'],
+        'id': conversion.str_to_uuid(tags['id']), #convert id to uuid
         'title': tag['name'],
         'description': tag.get('description', None),
         'can_read': True, #if user got this far through request, can access
