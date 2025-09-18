@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
 import functions.misp as misp
 import requests
+import uuid
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ def get_misp_collections(headers= None):
     collections = []
     for tag in tags:
         collections.append({
-            'id': tag['id'],
+            'id': str(uuid.uuid5(uuid.NAMESPACE_OID, str(tag['id']))), #convert id to uuid
             'title': tag['name'],
             'description': tag.get('description', None),
             'can_read': True, #if user got this far through request, can access
@@ -57,7 +58,7 @@ def get_misp_collections(collection_id = int, headers= None):
         raise HTTPException(status_code=404, detail='Collection not found')
     
     return {
-        'id': tag['id'],
+        'id': str(uuid.uuid5(uuid.NAMESPACE_OID, str(tag['id']))), #convert id to uuid
         'title': tag['name'],
         'description': tag.get('description', None),
         'can_read': True, #if user got this far through request, can access
