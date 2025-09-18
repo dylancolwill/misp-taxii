@@ -1,6 +1,7 @@
 from functions import misp
 
-# incorrect auth
+print('start')
+
 auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
 
 headers = {
@@ -9,9 +10,14 @@ headers = {
             "Content-Type": "application/json"
         }
 
+data = None
+
+print('querymisp')
+
 try:
-    data = misp.query_misp_api("/events", headers=headers)
+    data = misp.query_misp_api("/tags/index", headers=headers)
 except Exception as e:
     print("Error:", e)
     
-# print(data)
+print('end')
+print(data)
