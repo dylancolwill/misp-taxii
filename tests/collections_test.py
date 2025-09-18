@@ -27,7 +27,6 @@ import requests
 import creds
 
 url = "http://127.0.0.1:8000/taxii2/api1/collections/"
-auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
 
 headers = {
             "Authorization": creds.get_creds(),
