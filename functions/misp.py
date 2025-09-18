@@ -1,6 +1,7 @@
 import urllib3
 from pymisp import ExpandedPyMISP
 import requests
+from fastapi import Request, HTTPException, Depends
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -19,6 +20,24 @@ misp_ip="https://13.239.5.152"
 #     """
 #     return misp
 
+def get_user_perms(headers=None):
+    """
+    function to check if the user has writing perms
+    required for some endpoints
+    """
+    
+    response = query_misp_api("/users/view/me", headers=headers)
+    perm_modify = response['Role']['perm_modify']
+    
+    return perm_modify
+
+def get_headers(request: Request):
+    api_key = request.headers.get("Authorization") 
+    # print(f"GETHEADER{api_key}")
+    # if not api_key:
+    #     raise HTTPException(status_code=401, detail="Missing MISP API key")
+    return dict(request.headers)
+
 def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     """
     function to call misp api dynamically
@@ -26,12 +45,21 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     """
 
     # default headers
+    # REMOVE BEFORE PRODUCTION
     if headers is None:
         headers = {
             "Authorization": auth,
             "Accept": "application/json",
             "Content-Type": "application/json"
         }
+        
+    # get api from header
+    api_key = headers.get("Authorization")
+    # print(f"QUERY{auth}")
+    # print(api_key)
+    
+    # if not api_key:
+    #     raise HTTPException(status_code=401, detail="Missing MISP API key")
 
     url = f"{misp_ip}{endpoint}"
 

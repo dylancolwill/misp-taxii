@@ -3,6 +3,7 @@ import uvicorn
 
 # import routers
 from endpoints.discovery import router as discovery_router
+from endpoints.collections import router as collections_router
 
 # init fast api
 app = FastAPI(
@@ -11,6 +12,7 @@ app = FastAPI(
 
 # resister endpoints
 app.include_router(discovery_router)
+app.include_router(collections_router)
 
 # start the server when file is run
 if __name__ == "__main__":
