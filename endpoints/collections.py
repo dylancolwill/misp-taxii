@@ -50,6 +50,8 @@ def get_misp_collections(collection_uuid: str, request: Request):
     if not tag:
         raise HTTPException(status_code=404, detail='Collection not found')
     
+    response.headers['Content-Type']= 'application/taxii+json;version=2.1'
+    
     return {
         'id': conversion.str_to_uuid(tag['id']), #convert id to uuid
         'title': tag['name'],
