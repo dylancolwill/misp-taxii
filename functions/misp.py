@@ -38,23 +38,33 @@ def get_headers(request: Request):
     #     raise HTTPException(status_code=401, detail="Missing MISP API key")
     return dict(request.headers)
 
+def headers_verify(headers):
+    if headers is None :
+        raise HTTPException(status_code=400, detail='Missing required header')
+    if 'Authorization' not in headers:
+        raise HTTPException(status_code=401, detail='Missing authorization key in header')
+    if 'Accept' not in headers:
+        raise HTTPException(status_code=400, detail='Missing TAXII accept header')
+    elif headers["Accept"] != "application/taxii+json;version=2.1":
+        raise HTTPException(status_code=400, detail='Invalid accept header')
+    
+
 def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     """
     function to call misp api dynamically
     allows other modules to query without duplicating logic
     """
-
+    print(headers)
+    headers_verify(headers=headers)
     # default headers
     # REMOVE BEFORE PRODUCTION
-    if headers is None:
-        headers = {
-            "Authorization": auth,
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
         
     # get api from header
-    api_key = headers.get("Authorization")
+    misp_api_key = headers.get("Authorization")
+    
+    misp_headers =  {"Authorization": misp_api_key,
+            "Accept": "application/json",
+            "Content-Type": "application/json"}
     # print(f"QUERY{auth}")
     # print(api_key)
     
@@ -65,13 +75,13 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
 
     try:
         if method.upper() == "GET":
-            response = requests.get(url, headers=headers, verify=False)
+            response = requests.get(url, headers=misp_headers, verify=False)
         elif method.upper() == "POST":
-            response = requests.post(url, headers=headers, verify=False, json=data)
+            response = requests.post(url, headers=misp_headers, verify=False, json=data)
         elif method.upper() == "PUT":
-            response = requests.put(url, headers=headers, verify=False, json=data)
+            response = requests.put(url, headers=misp_headers, verify=False, json=data)
         elif method.upper() == "DELETE":
-            response = requests.delete(url, headers=headers, verify=False)
+            response = requests.delete(url, headers=misp_headers, verify=False)
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
     except Exception as e:
