@@ -39,14 +39,18 @@ def get_headers(request: Request):
     return dict(request.headers)
 
 def headers_verify(headers):
+    #set headers to lower case
+    headers = {k.lower(): v for k, v in headers.items()}
+    
     if headers is None :
         raise HTTPException(status_code=400, detail='Missing required header')
-    if 'Authorization' not in headers:
+    if 'authorization' not in headers:
         raise HTTPException(status_code=401, detail='Missing authorization key in header')
-    if 'Accept' not in headers:
+    if 'accept' not in headers:
         raise HTTPException(status_code=400, detail='Missing TAXII accept header')
-    elif headers["Accept"] != "application/taxii+json;version=2.1":
+    elif headers["accept"] != "application/taxii+json;version=2.1":
         raise HTTPException(status_code=400, detail='Invalid accept header')
+    print('header verification complete')
     
 
 def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
@@ -54,22 +58,13 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     function to call misp api dynamically
     allows other modules to query without duplicating logic
     """
-    print(headers)
-    headers_verify(headers=headers)
-    # default headers
-    # REMOVE BEFORE PRODUCTION
         
     # get api from header
-    misp_api_key = headers.get("Authorization")
+    misp_api_key = headers.get("authorization")
     
     misp_headers =  {"Authorization": misp_api_key,
             "Accept": "application/json",
             "Content-Type": "application/json"}
-    # print(f"QUERY{auth}")
-    # print(api_key)
-    
-    # if not api_key:
-    #     raise HTTPException(status_code=401, detail="Missing MISP API key")
 
     url = f"{misp_ip}{endpoint}"
 
