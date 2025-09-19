@@ -6,15 +6,15 @@ import requests
 router = APIRouter()
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/manifests', tags=['Manifests'])
-def get_misp_collections(collection_uuid, headers= None):
+def get_misp_collections(collection_uuid: str, request: Request):
     """
     since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
     """
+    headers = dict(request.headers)
+    
     print('getting all misp tags...')
     response = misp.query_misp_api('/tags/index', headers=headers)
     tags = response.get('Tag')  #returns a list of tag dicts
-
-    can_write=misp.get_user_perms(headers=headers) #get the user perms from function in core
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
@@ -38,7 +38,9 @@ def get_misp_collections(collection_uuid, headers= None):
             'id': event['Event']['uuid'], #NEED TO INCLUDE STIX OBJECT TYPE
             'date_added': event['Event']['date'],
             'version': event['Event']['timestamp'], #taxii spec states to use created timestamp if no version
-            'media_types': 'application/stix+json;version=2.1'
+            'media_type': 'application/stix+json;version=2.1'
         })
+        
+    print('complete')
     
-    return manifests
+    return {'objects':manifests}
