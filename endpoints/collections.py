@@ -32,10 +32,12 @@ def get_misp_collections(headers= None):
     return collections
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}', tags=['Collections'])
-def get_misp_collections(collection_uuid = int, headers= None):
+def get_misp_collections(collection_uuid: str, request: Request):
     """
     since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
     """
+    headers = dict(request.headers)
+    
     print('getting all misp tags...')
     response = misp.query_misp_api('/tags/index', headers=headers)
     tags = response.get('Tag')  #returns a list of tag dicts
