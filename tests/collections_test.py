@@ -34,6 +34,7 @@ headers = {
             "Content-Type": "application/json"
         }
 
-resp = requests.get(url, headers=headers)
+collectionResp = requests.get(url, headers=headers)
+print(collectionResp)
 # print(resp.status_code)
-print(resp.json())
+print(collectionResp.json())

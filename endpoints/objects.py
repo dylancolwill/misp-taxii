@@ -4,6 +4,11 @@ import functions.misp as misp
 import requests
 from misp_stix_converter import MISPtoSTIX21Parser
 import functions.conversion  as conversion
+import endpoints.collections as collections
+import creds
+
+##This File is based off of Collections due to this some parts may not be needed
+##If that is the case it will be resolved
 
 router = APIRouter()
 
@@ -11,14 +16,16 @@ taxii_accept = "application/taxii+json;version=2.1"
 taxii_content_type = "application/taxii+json;version=2.1"
 
 
-
-@router.get("/taxii2/api1/collections/1/objects/", tags=["Objects"])
-async def get_collections(headers: dict = Depends(misp.get_headers)):
-
+print("before router")
+@router.post("/taxii2/api1/collections/objects/", tags=["Objects"])
+async def post_objects(headers: dict = Depends(misp.get_headers)): ##this might need to be changed
+    print("after router")
 
     try:
         # get all events
-        misp_response = misp.query_misp_api("/events/index", headers=headers)
+        print("before misp response")
+        misp_response = misp.query_misp_api("/events/index", headers=headers) #file breaks here
+        print(misp_response)
     except requests.exceptions.HTTPError as e:
         status_code = e.response.status_code
         detail = e.response.json() if e.response.headers.get("Content-Type") == "application/json" else str(e)
@@ -27,14 +34,17 @@ async def get_collections(headers: dict = Depends(misp.get_headers)):
         else:
             raise HTTPException(status_code=500, detail=detail)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) #its getting raised here
 
 
-     
+    # objects = []
     for event in misp_response:
-    #convert misp event into STIX and bundle them - Lewis Testing in here b'cause he can't be bothered to make a new file
+    #convert misp events into STIX, they will also be bundled later
         stixObject = conversion.misp_to_stix(event[0])
         print(stixObject)
+        # objects.append(stixObject)
+
+    # return objects
 
     return {
         "objects": stixObject

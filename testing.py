@@ -1,6 +1,5 @@
 import requests
-
-url = "http://127.0.0.1:8000/taxii2/api1/collections/1/objects/"
+url = "http://127.0.0.1:8000/taxii2/api1/collections/objects/"
 auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
 
 headers = {
@@ -8,7 +7,10 @@ headers = {
             "Accept": "application/taxii+json;version=2.1",
             "Content-Type": "application/json"
         }
-
-resp = requests.get(url, headers=headers)
+print("before header")
+resp = requests.post(url, headers=headers)
 # print(resp.status_code)
+
+print(resp)
+print("before JSOn call")
 print(resp.json())
