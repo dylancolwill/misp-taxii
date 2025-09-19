@@ -7,11 +7,13 @@ import uuid
 router = APIRouter()
 
 @router.get('/taxii2/{api_root}/collections/', tags=['Collections'])
-def get_misp_collections(headers= None):
+def get_misp_collections(request: Request):
     """
     Fetch all MISP tags and convert them into TAXII 2.1 collections.
     Each tag becomes a collection.
     """
+    headers = dict(request.headers)
+    
     print('getting all misp tags...')
     response = misp.query_misp_api('/tags/index', headers=headers)
     tags = response.get('Tag')  #returns a list of tag dicts
@@ -28,8 +30,10 @@ def get_misp_collections(headers= None):
             'can_write': can_write,
             'media_types': ['application/stix+json;version=2.1']
         })
+        
+    response.headers['Content-Type']= 'application/taxii+json;version=2.1'
     
-    return collections
+    return {'collections':collections}
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}', tags=['Collections'])
 def get_misp_collections(collection_uuid: str, request: Request):
