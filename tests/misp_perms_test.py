@@ -5,8 +5,8 @@ url = "http://127.0.0.1:8000/taxii2/api1/collections/"
 
 headers = {
             "Authorization": creds.get_creds(),
-            "Accept": "application/json",
-            "Content-Type": "application/json"
+            "Accept": "application/taxii+json;version=2.1",
+            "Content-Type": "application/taxii+json;version=2.1"
         }
 
 data = None
