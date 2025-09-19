@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Response
 import functions.misp as misp
 import functions.conversion as conversion
 import requests
@@ -7,17 +7,19 @@ import uuid
 router = APIRouter()
 
 @router.get('/taxii2/{api_root}/collections/', tags=['Collections'])
-def get_misp_collections(request: Request):
+def get_misp_collections(request: Request = None, response: Response = None):
     """
     Fetch all MISP tags and convert them into TAXII 2.1 collections.
     Each tag becomes a collection.
     """
     headers = dict(request.headers)
+    print(headers)
     
     print('getting all misp tags...')
-    response = misp.query_misp_api('/tags/index', headers=headers)
-    tags = response.get('Tag')  #returns a list of tag dicts
+    misp_response = misp.query_misp_api('/tags/index', headers=headers)
+    tags = misp_response.get('Tag')  #returns a list of tag dicts
 
+    print('getting user perms...')
     can_write=misp.get_user_perms(headers=headers) #get the user perms from function in core
     
     collections = []
@@ -36,15 +38,15 @@ def get_misp_collections(request: Request):
     return {'collections':collections}
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}', tags=['Collections'])
-def get_misp_collections(collection_uuid: str, request: Request):
+def get_misp_collections(collection_uuid: str, request: Request, response: Response):
     """
     since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
     """
     headers = dict(request.headers)
     
     print('getting all misp tags...')
-    response = misp.query_misp_api('/tags/index', headers=headers)
-    tags = response.get('Tag')  #returns a list of tag dicts
+    misp_response = misp.query_misp_api('/tags/index', headers=headers)
+    tags = misp_response.get('Tag')  #returns a list of tag dicts
 
     can_write=misp.get_user_perms(headers=headers) #get the user perms from function in core
     
