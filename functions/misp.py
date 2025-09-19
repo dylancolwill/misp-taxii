@@ -62,6 +62,7 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     # get api from header
     misp_api_key = headers.get("authorization")
     
+    #set misp relevent headers
     misp_headers =  {"Authorization": misp_api_key,
             "Accept": "application/json",
             "Content-Type": "application/json"}
