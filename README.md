@@ -7,3 +7,4 @@
 - [ ] verify user passes api key
 - [ ] include manifests filtering
 - [ ] map misp events to stix object type to include in uuid for taxii objects
+- [ ] make use of api roots
