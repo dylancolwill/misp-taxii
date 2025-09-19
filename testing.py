@@ -4,7 +4,7 @@ auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
 
 headers = {
             "Authorization": auth,
-            "Accept": "application/taxii+json;version=2.1",
+            "Accept": "application/json",
             "Content-Type": "application/json"
         }
 print("before header")
