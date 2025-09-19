@@ -47,7 +47,7 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     # default headers
     # REMOVE BEFORE PRODUCTION
     if headers is None:
-        headers = {
+       headers = {
             "Authorization": auth,
             "Accept": "application/json",
             "Content-Type": "application/json"

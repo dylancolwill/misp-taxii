@@ -1,4 +1,5 @@
 from misp_stix_converter import MISPtoSTIX21Parser
+from stix2 import parse
 
 def misp_to_stix(event):
     # takes misp event converts to json
@@ -7,4 +8,5 @@ def misp_to_stix(event):
     return parser21.bundle
 
 def json_to_stix(json):
-    pass
+    obj = parse(json)
+    print(obj)
