@@ -40,7 +40,6 @@ def get_headers(request: Request):
 
 def headers_verify(headers):
     # check if header is passed
-    print(headers)
     if headers is None :
         raise HTTPException(status_code=400, detail='Missing required header')
     
