@@ -39,11 +39,14 @@ def get_headers(request: Request):
     return dict(request.headers)
 
 def headers_verify(headers):
+    # check if header is passed
+    print(headers)
+    if headers is None :
+        raise HTTPException(status_code=400, detail='Missing required header')
+    
     #set headers to lower case
     headers = {k.lower(): v for k, v in headers.items()}
     
-    if headers is None :
-        raise HTTPException(status_code=400, detail='Missing required header')
     if 'authorization' not in headers:
         raise HTTPException(status_code=401, detail='Missing authorization key in header')
     if 'accept' not in headers:
@@ -58,7 +61,9 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     function to call misp api dynamically
     allows other modules to query without duplicating logic
     """
-        
+    
+    headers_verify(headers=headers)
+    
     # get api from header
     misp_api_key = headers.get("authorization")
     
