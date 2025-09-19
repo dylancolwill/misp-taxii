@@ -6,7 +6,7 @@ import uuid
 
 router = APIRouter()
 
-@router.get('/taxii2/api1/collections/', tags=['Collections'])
+@router.get('/taxii2/{api_root}/collections/', tags=['Collections'])
 def get_misp_collections(headers= None):
     """
     Fetch all MISP tags and convert them into TAXII 2.1 collections.
@@ -31,7 +31,7 @@ def get_misp_collections(headers= None):
     
     return collections
 
-@router.get('/taxii2/api1/collections/{collection_uuid}', tags=['Collections'])
+@router.get('/taxii2/{api_root}/collections/{collection_uuid}', tags=['Collections'])
 def get_misp_collections(collection_uuid = int, headers= None):
     """
     since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
@@ -42,7 +42,7 @@ def get_misp_collections(collection_uuid = int, headers= None):
 
     can_write=misp.get_user_perms(headers=headers) #get the user perms from function in core
     
-    # find matching tag
+    # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:

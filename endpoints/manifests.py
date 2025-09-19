@@ -5,7 +5,7 @@ import requests
 
 router = APIRouter()
 
-@router.get('/taxii2/api1/collections/{collection_uuid}/manifests', tags=['Manifests'])
+@router.get('/taxii2/{api_root}/collections/{collection_uuid}/manifests', tags=['Manifests'])
 def get_misp_collections(collection_uuid, headers= None):
     """
     since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
