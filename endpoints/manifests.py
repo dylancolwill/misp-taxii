@@ -11,7 +11,7 @@ def get_misp_manifests(collection_uuid: str,
     limit: int = Query(None),
     next_token: str = Query(None), #taxii next
     object_id: str = Query(None, alias='match[id]'),
-    object_type: str = Query(None, alias='match[type]'),
+    object_type: str = Query(None, alias='match[type]'), #dont think misp has these filters?
     version: str = Query(None, alias='match[version]'),
     spec_version: str = Query(None, alias='match[spec_version]'),
     request: Request = None,
