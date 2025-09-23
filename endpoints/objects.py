@@ -38,16 +38,16 @@ async def post_objects(headers: dict = Depends(misp.get_headers)): ##this might 
         raise HTTPException(status_code=500, detail=str(e)) #its getting raised here
 
 
-    # objects = []
-    #for event in misp_response:
-    #convert misp events into STIX, they will also be bundled later
-    print("Broke Before Conversion")
-    #stixObject = conversion.misp_to_stix(misp_response)
-    #stix_dictionary = tuple(misp_response)
-    stixObject = conversion.json_to_stix(misp_response)
-    print("Passed STIX Conversion")
-    print(stixObject)
-        # objects.append(stixObject)
+    objects = []
+    for event in misp_response:
+        #convert misp events into STIX, they will also be bundled later
+        print("Broke Before Conversion")
+        #stixObject = conversion.misp_to_stix(misp_response)
+        #stix_dictionary = tuple(misp_response)
+        stixObject = conversion.json_to_stix(event)
+        print("Passed STIX Conversion")
+        print(stixObject)
+        objects.append(stixObject)
 
     # return objects
 
