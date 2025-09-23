@@ -25,6 +25,7 @@ async def post_objects(headers: dict = Depends(misp.get_headers)): ##this might 
         # get all events
         print("before misp response")
         misp_response = misp.query_misp_api("/events/index", headers=headers) #file breaks here
+        print("after misp response")
         pprint.pp(misp_response)
     except requests.exceptions.HTTPError as e:
         status_code = e.response.status_code

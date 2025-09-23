@@ -1,12 +1,13 @@
 import requests
 import pprint
+import creds
 url = "http://127.0.0.1:8000/taxii2/api1/collections/objects/"
 auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
 
 headers = {
-            "Authorization": auth,
-            "Accept": "application/json",
-            "Content-Type": "application/json"
+            "Authorization": creds.get_creds(),
+            "Accept": "application/taxii+json;version=2.1",
+            "Content-Type": "application/taxii+json;version=2.1"
         }
 print("before header")
 resp = requests.post(url, headers=headers)
