@@ -40,11 +40,10 @@ async def post_objects(headers: dict = Depends(misp.get_headers)): ##this might 
 
     objects = []
     for event in misp_response:
-        #convert misp events into STIX, they will also be bundled later
+        #convert misp events into STIX
         print("Broke Before Conversion")
-        #stixObject = conversion.misp_to_stix(misp_response)
-        #stix_dictionary = tuple(misp_response)
-        stixObject = conversion.json_to_stix(event)
+        stixObject = conversion.misp_to_stix(event)
+        #stixObject = conversion.json_to_stix(event)
         print("Passed STIX Conversion")
         print(stixObject)
         objects.append(stixObject)
