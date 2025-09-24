@@ -51,42 +51,32 @@ def get_misp_manifests(collection_uuid: str,
     misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
     events=misp_response['response']
     
-    # print(events,'\n')
-    
     objects = []
-    print(events)
     for event in events:
         event=event['Event']
-        # print(event)
         # convert misp events into STIX
         stixObject = conversion.misp_to_stix(event)
         #stixObject = conversion.json_to_stix(event)
         print("Passed STIX Conversion")
-        # print(stixObject)
         objects.append(stixObject)
-        
-    # print(objects)
     
+    manifests=[]
+    date_added_list = []
     for bundle in objects:  # your converted STIX bundles
         for obj in bundle.objects:
-            print(obj.id)
-            # pass
-    
-    manifests = []
-    date_added_list = []
-    # for event in objects:
-    #     date_added_list.append(event['Event']['date']) #prepare for response header required in taxii spec
-    #     manifests.append({
-    #         'id': event['Event']['uuid'], #NEED TO INCLUDE STIX OBJECT TYPE
-    #         'date_added': event['Event']['date'],
-    #         'version': event['Event']['timestamp'], #taxii spec states to use created timestamp if no version
-    #         'media_type': 'application/stix+json;version=2.1'
-    #     })
-        
+            if obj.type is not 'identity':
+                manifests.append({
+                    'id': obj.id,
+                    'date_added': obj.created ,
+                    'version': getattr(obj, 'modified', obj.created),  # use modified if exists, else created
+                    'media_type': 'application/stix+json;version=2.1'
+                })
+                date_added_list.append(obj.created)
+            
     print('complete')
     
     if date_added_list:
-        response.headers['X-TAXII-Date-Added-First'] = min(date_added_list)
-        response.headers['X-TAXII-Date-Added-Last'] = max(date_added_list)
+        response.headers['X-TAXII-Date-Added-First'] = min(date_added_list).isoformat()
+        response.headers['X-TAXII-Date-Added-Last'] = max(date_added_list).isoformat()
     
     return {'objects':manifests}
