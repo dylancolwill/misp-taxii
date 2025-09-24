@@ -1,5 +1,5 @@
 import urllib3
-from pymisp import ExpandedPyMISP
+# from pymisp import ExpandedPyMISP
 import requests
 from fastapi import Request, HTTPException, Depends
 

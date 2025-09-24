@@ -5,7 +5,7 @@
 - [ ] verify responses are stix and follow spec
   - [ ] discovery endpoint
   - [ ] collections endpoint
-  - [ ] manifests endpoint
+  - [x] manifests endpoint
   - [ ] objects
 - [ ] https to securely use api keys, enable tls verification
 - [x] verify user passes api key
