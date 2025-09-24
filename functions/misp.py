@@ -89,5 +89,6 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
 
     # raise http errors
     response.raise_for_status()
-
+    print("misp.py")
+    print(response)
     return response.json()
