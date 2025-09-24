@@ -51,22 +51,26 @@ def get_misp_manifests(collection_uuid: str,
     misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
     events=misp_response['response']
     
-    print(events,'\n')
+    # print(events,'\n')
     
     objects = []
-    
+    print(events)
     for event in events:
         event=event['Event']
-        print(event)
+        # print(event)
         # convert misp events into STIX
         stixObject = conversion.misp_to_stix(event)
         #stixObject = conversion.json_to_stix(event)
         print("Passed STIX Conversion")
-        print(stixObject)
+        # print(stixObject)
         objects.append(stixObject)
-    print(objects)
+        
+    # print(objects)
     
-    
+    for bundle in objects:  # your converted STIX bundles
+        for obj in bundle.objects:
+            print(obj.id)
+            # pass
     
     manifests = []
     date_added_list = []
