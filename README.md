@@ -7,6 +7,7 @@
   - [x] collections endpoint
   - [x] manifests endpoint
   - [ ] objects
+  - [ ] api root
 - [ ] https to securely use api keys, enable tls verification
 - [x] verify user passes api key
 - [x] include manifests filtering
