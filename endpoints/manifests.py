@@ -51,16 +51,33 @@ def get_misp_manifests(collection_uuid: str,
     misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
     events=misp_response['response']
     
+    print(events,'\n')
+    
+    objects = []
+    
+    for event in events:
+        event=event['Event']
+        print(event)
+        # convert misp events into STIX
+        stixObject = conversion.misp_to_stix(event)
+        #stixObject = conversion.json_to_stix(event)
+        print("Passed STIX Conversion")
+        print(stixObject)
+        objects.append(stixObject)
+    print(objects)
+    
+    
+    
     manifests = []
     date_added_list = []
-    for event in events:
-        date_added_list.append(event['Event']['date']) #prepare for response header required in taxii spec
-        manifests.append({
-            'id': event['Event']['uuid'], #NEED TO INCLUDE STIX OBJECT TYPE
-            'date_added': event['Event']['date'],
-            'version': event['Event']['timestamp'], #taxii spec states to use created timestamp if no version
-            'media_type': 'application/stix+json;version=2.1'
-        })
+    # for event in objects:
+    #     date_added_list.append(event['Event']['date']) #prepare for response header required in taxii spec
+    #     manifests.append({
+    #         'id': event['Event']['uuid'], #NEED TO INCLUDE STIX OBJECT TYPE
+    #         'date_added': event['Event']['date'],
+    #         'version': event['Event']['timestamp'], #taxii spec states to use created timestamp if no version
+    #         'media_type': 'application/stix+json;version=2.1'
+    #     })
         
     print('complete')
     
