@@ -3,7 +3,8 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-# Example API root data
+# root data
+# MAY NEED TO CHANGE
 api_roots_info = {
     'api1': {
         'title': 'Cosive',
