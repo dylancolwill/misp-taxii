@@ -6,6 +6,8 @@ import uuid
 def str_to_uuid(string):
     return str(uuid.uuid5(uuid.NAMESPACE_OID, str(string)))
 
+def stix_to_misp(stix):
+    pass
 
 def misp_to_stix(event):
     # takes misp event converts to json

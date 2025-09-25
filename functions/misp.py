@@ -1,14 +1,12 @@
 import urllib3
-from pymisp import ExpandedPyMISP
+# from pymisp import ExpandedPyMISP
 import requests
 from fastapi import Request, HTTPException, Depends
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # REMOVE BEFORE PRODUCTION
-auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
-
-misp_ip="https://13.239.5.152"
+misp_ip='https://13.239.5.152'
 
 # DONT NEED, AUTH IN EVERY REQUEST INSTEAD
 # init
@@ -26,16 +24,16 @@ def get_user_perms(headers=None):
     required for some endpoints
     """
     
-    response = query_misp_api("/users/view/me", headers=headers)
+    response = query_misp_api('/users/view/me', headers=headers)
     perm_modify = response['Role']['perm_modify']
     
     return perm_modify
 
 def get_headers(request: Request):
-    api_key = request.headers.get("Authorization") 
-    # print(f"GETHEADER{api_key}")
+    api_key = request.headers.get('Authorization') 
+    # print(f'GETHEADER{api_key}')
     # if not api_key:
-    #     raise HTTPException(status_code=401, detail="Missing MISP API key")
+    #     raise HTTPException(status_code=401, detail='Missing MISP API key')
     return dict(request.headers)
 
 def headers_verify(headers):
@@ -50,12 +48,12 @@ def headers_verify(headers):
         raise HTTPException(status_code=401, detail='Missing authorization key in header')
     if 'accept' not in headers:
         raise HTTPException(status_code=400, detail='Missing TAXII accept header')
-    elif headers["accept"] != "application/taxii+json;version=2.1":
+    elif headers['accept'] != 'application/taxii+json;version=2.1':
         raise HTTPException(status_code=400, detail='Invalid accept header')
     print('header verification complete')
     
 
-def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
+def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     """
     function to call misp api dynamically
     allows other modules to query without duplicating logic
@@ -64,31 +62,31 @@ def query_misp_api(endpoint: str, method: str = "GET", data=None, headers=None):
     headers_verify(headers=headers)
     
     # get api from header
-    misp_api_key = headers.get("authorization")
+    misp_api_key = headers.get('authorization')
     
     #set misp relevent headers
-    misp_headers =  {"Authorization": misp_api_key,
-            "Accept": "application/json",
-            "Content-Type": "application/json"}
+    misp_headers =  {'Authorization': misp_api_key,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'}
 
-    url = f"{misp_ip}{endpoint}"
+    url = f'{misp_ip}{endpoint}'
 
     try:
-        if method.upper() == "GET":
+        if method.upper() == 'GET':
             response = requests.get(url, headers=misp_headers, verify=False)
-        elif method.upper() == "POST":
+        elif method.upper() == 'POST':
             response = requests.post(url, headers=misp_headers, verify=False, json=data)
-        elif method.upper() == "PUT":
+        elif method.upper() == 'PUT':
             response = requests.put(url, headers=misp_headers, verify=False, json=data)
-        elif method.upper() == "DELETE":
+        elif method.upper() == 'DELETE':
             response = requests.delete(url, headers=misp_headers, verify=False)
         else:
-            raise ValueError(f"Unsupported HTTP method: {method}")
+            raise ValueError(f'Unsupported HTTP method: {method}')
     except Exception as e:
-        raise RuntimeError(f"Error calling MISP {endpoint}: {e}")
+        raise RuntimeError(f'Error calling MISP {endpoint}: {e}')
 
     # raise http errors
     response.raise_for_status()
-    print("misp.py")
+    print('misp.py')
     print(response)
     return response.json()
