@@ -5,11 +5,11 @@ router = APIRouter()
 
 # Example API root data
 api_roots_info = {
-    "api1": {
-        "title": "Cosive",
-        "description": "Main ClousMISP connectivity",
-        "versions": ["application/taxii+json;version=2.1"],
-        "max_content_length": 104857600,  # 100mb
+    'api1': {
+        'title': 'Cosive',
+        'description': 'Main ClousMISP connectivity',
+        'versions': ['application/taxii+json;version=2.1'],
+        'max_content_length': 104857600,  # 100mb
     }
 }
 
@@ -17,12 +17,12 @@ def list_roots():
     return list(api_roots_info.keys())
     
 
-@router.get("/taxii2/{api_root}/", tags=["API Root"])
+@router.get('/taxii2/{api_root}/', tags=['API Root'])
 async def get_api_root(api_root: str):
     """
     Return information about a specific API Root
     """
     if api_root not in api_roots_info:
-        raise HTTPException(status_code=404, detail="API Root not found")
+        raise HTTPException(status_code=404, detail='API Root not found')
 
     return api_roots_info[api_root]
