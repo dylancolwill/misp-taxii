@@ -14,5 +14,5 @@ resp = requests.post(url, headers=headers)
 # print(resp.status_code)
 
 pprint.pp(resp)
-print("before JSOn call")
+print("before JSON call")
 pprint.pp(resp)

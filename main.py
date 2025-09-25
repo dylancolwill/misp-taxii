@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 import uvicorn
 
+#Running this File will start the server
+#Before troubleshooting any errors make sure the server is running
+
+
 # import routers
 from endpoints.discovery import router as discovery_router
 from endpoints.collections import router as collections_router
