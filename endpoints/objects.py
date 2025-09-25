@@ -97,9 +97,7 @@ async def get_object_versions(
     
     object_bundles = [conversion.misp_to_stix(event['Event']) for event in events]
     print("Passed STIX Conversion")    
-        
-    print(object_bundles)
-    
+            
     versions = []
     for bundle in object_bundles:
         for obj in bundle.objects:
