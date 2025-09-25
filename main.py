@@ -6,6 +6,7 @@ from endpoints.discovery import router as discovery_router
 from endpoints.collections import router as collections_router
 from endpoints.objects import router as objects_router
 from endpoints.manifests import router as manifests_router
+from endpoints.root import router as root_router
 
 # init fast api
 app = FastAPI(
@@ -17,6 +18,7 @@ app.include_router(discovery_router)
 app.include_router(collections_router)
 app.include_router(objects_router)
 app.include_router(manifests_router)
+app.include_router(root_router)
 
 # start the server when file is run
 if __name__ == "__main__":
