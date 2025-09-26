@@ -38,7 +38,7 @@ def get_misp_collections(request: Request = None, response: Response = None):
     return {'collections':collections}
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}', tags=['Collections'])
-def get_misp_collections(collection_uuid: str, request: Request, response: Response):
+def get_misp_collection(collection_uuid: str, request: Request, response: Response):
     """
     since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
     """
