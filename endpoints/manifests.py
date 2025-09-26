@@ -18,11 +18,13 @@ def get_misp_manifests(collection_uuid: str,
     response: Response = None
 ):
     """
-    since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
+    takes collection uuid and returns metadata for stix objects in that collection.
+    since taxii requires uuid but misp uses id, need to fetch all tags and filter in code, cannot query for id
     """
-    
+    #  extract headers from initial request
     headers = dict(request.headers)
     
+    # query misp for all tags using headers
     print('getting all misp tags...')
     misp_response = misp.query_misp_api('/tags/index', headers=headers)
     tags = misp_response.get('Tag')  #returns a list of tag dicts
@@ -32,15 +34,17 @@ def get_misp_manifests(collection_uuid: str,
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
         raise HTTPException(status_code=404, detail='Collection not found')
-    collection_name = tag['name']
+    collection_name = tag['name'] #used to fetch matching events
     # print(collection_name)
     
+    # setup payload to use in misp request
     print('getting related misp events...')
     payload = {
         'tags': collection_name,
         'returnFormat': 'json'
     }
     
+    # apply filters where possible
     if added_after:
         payload['date_from'] = added_after
     if limit:
@@ -48,23 +52,26 @@ def get_misp_manifests(collection_uuid: str,
     if next_token:
         payload['page'] = int(next_token) 
     
+    # query misp for events matching this collection using restSearch
     misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
     events=misp_response['response']
     
+    # convert each misp event into stix
     objects = []
     for event in events:
-        event=event['Event']
+        event=event['Event'] #misp wraps event inside, {'Event': {}}
         # convert misp events into STIX
-        stixObject = conversion.misp_to_stix(event)
+        stixObject = conversion.misp_to_stix(event) #call function to handle conversion
         #stixObject = conversion.json_to_stix(event)
         print("Passed STIX Conversion")
         objects.append(stixObject)
     
+    #repackage as manifests according to taxii spec
     manifests=[]
     date_added_list = []
-    for bundle in objects:  # your converted STIX bundles
+    for bundle in objects:  # each item is a stix bundle
         for obj in bundle.objects:
-            if obj.type is not 'identity':
+            if obj.type is not 'identity': #identity not needed 
                 manifests.append({
                     'id': obj.id,
                     'date_added': obj.created ,
@@ -75,6 +82,7 @@ def get_misp_manifests(collection_uuid: str,
             
     print('complete')
     
+    # add required response headers per spec
     if date_added_list:
         response.headers['X-TAXII-Date-Added-First'] = min(date_added_list).isoformat()
         response.headers['X-TAXII-Date-Added-Last'] = max(date_added_list).isoformat()
