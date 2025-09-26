@@ -14,4 +14,5 @@
 - [x] map misp events to stix object type to include in uuid for taxii objects
 - [ ] make use of api roots
 - [ ] remove testing and development code blocks
+  - [ ] change print statements to debug log
 - [ ] test filters
