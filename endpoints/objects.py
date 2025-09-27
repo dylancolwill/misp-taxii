@@ -63,8 +63,14 @@ async def get_object_versions(
     request: Request = None,
     response: Response = None
 ):
+    """
+    returns all versions of an object, given collection and object uuid
+    since taxii requires uuid but misp uses id, need to fetch all tags and filter in code, cannot query for id
+    """
+    #  extract headers from initial request
     headers = dict(request.headers)
     
+    # query misp for all tags using headers
     print('getting all misp tags...')
     misp_response = misp.query_misp_api('/tags/index', headers=headers)
     tags = misp_response.get('Tag')  #returns a list of tag dicts
@@ -74,15 +80,17 @@ async def get_object_versions(
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
         raise HTTPException(status_code=404, detail='Collection not found')
-    collection_name = tag['name']
+    collection_name = tag['name'] #used to fetch matching events
     # print(collection_name)
     
+    # setup payload to use in misp request
     print('getting related misp events...')
     payload = {
         'tags': collection_name,
         'returnFormat': 'json'
     }
     
+    # apply filters where possible
     if added_after:
         payload['date_from'] = added_after
     if limit:
@@ -90,27 +98,32 @@ async def get_object_versions(
     if next_token:
         payload['page'] = int(next_token) 
     
+    # query misp for events matching this collection using restSearch
     misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
     events = misp_response.get('response', [])
     
+    # convert events into stix bundles 
     object_bundles = [conversion.misp_to_stix(event['Event']) for event in events]
     print("Passed STIX Conversion")    
-            
+           
+    # collect all versions of requested stix
     versions = []
     for bundle in object_bundles:
         for obj in bundle.objects:
-            if obj.id == object_uuid:
-                # use modified otherwise created, per specs
-                timestamp = getattr(obj, 'modified', obj.created)
+            if obj.id == object_uuid: #match object uuid
+                timestamp = getattr(obj, 'modified', obj.created) #use modified otherwise created, per specs
                 versions.append(timestamp)
 
     if not versions:
         raise HTTPException(status_code=404, detail='Object not found')
 
+    # sort chronologically
     versions.sort()
         
+    # include taxii headers per specs
     response.headers['X-TAXII-Date-Added-First'] = min(versions).isoformat()
     response.headers['X-TAXII-Date-Added-Last'] = max(versions).isoformat()
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
-    return {"versions": [v for v in versions]}
+    # return list of versions
+    return {"versions": [v for v in versions]} #have to loop, breaks just returning list ?

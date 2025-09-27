@@ -3,8 +3,8 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-# root data
-# MAY NEED TO CHANGE
+# static dictionary holding api root data 
+# MAY NEED TO CHANGE TO BE DYNAMIC
 api_roots_info = {
     'api1': {
         'title': 'Cosive',
@@ -15,14 +15,18 @@ api_roots_info = {
 }
 
 def list_roots():
+    """
+    returns list of usable api roots
+    for discovery endpoint
+    """
     return list(api_roots_info.keys())
     
-
 @router.get('/taxii2/{api_root}/', tags=['API Root'])
 async def get_api_root(api_root: str):
     """
-    Return information about a specific API Root
+    return information about a specific api root
     """
+    # check if api root exists in dict
     if api_root not in api_roots_info:
         raise HTTPException(status_code=404, detail='API Root not found')
 
