@@ -56,7 +56,6 @@ def get_misp_manifests(collection_uuid: str,
         event=event['Event']
         # convert misp events into STIX
         stixObject = conversion.misp_to_stix(event)
-        #stixObject = conversion.json_to_stix(event)
         print("Passed STIX Conversion")
         objects.append(stixObject)
     

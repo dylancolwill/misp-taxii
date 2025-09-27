@@ -41,34 +41,17 @@ async def post_objects(headers: dict = Depends(misp.get_headers)):
     objects = []
     for event in misp_response:
         #convert misp events into STIX
-        print("Broke Before Conversion")
+        print("Broke Before Conversion, Object")
         stixObject = conversion.misp_to_stix(event)
-        print("Passed STIX Conversion")
+        print("Passed STIX Conversion, Object")
         print(stixObject)
         objects.append(stixObject)
 
     # return objects
 
-    """
-    since taxii requires uuid not id, need to fetch all tags and filter in code, cannot query for id
-    """
-        
-    print('getting all misp tags...')
-    misp_response = misp.query_misp_api('/tags/index', headers=headers)
-    tags = misp_response.get('Tag')  #returns a list of tag dicts
-    
-    # find matching tag, need to convert each collection id to uuid
-    print('comparing each tag id to user inputted uuid...')
-    tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
-    if not tag:
-        raise HTTPException(status_code=404, detail='Collection not found')
-    collection_name = tag['name']
-    # print(collection_name)
+"""Tag association section, this section aim to find the Tags on the objects"""
 
-    return {
-        "objects": stixObject
-    }
-    
+
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/versions/', tags=['Objects'])
 async def get_object_versions(
     collection_uuid: str,
