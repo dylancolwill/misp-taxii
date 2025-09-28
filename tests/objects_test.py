@@ -1,7 +1,10 @@
 import requests
 import pprint
 import creds
-url = "http://127.0.0.1:8000/taxii2/api1/collections/objects/"
+
+collections_uuid = "d6ed313e-533a-55a6-aa06-4c00bc132812"
+
+url = f"http://127.0.0.1:8000/taxii2/api1/collections/{collections_uuid}/objects/"
 auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
 
 headers = {

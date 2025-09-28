@@ -5,8 +5,10 @@ import requests
 from misp_stix_converter import MISPtoSTIX21Parser
 import functions.conversion  as conversion
 import endpoints.collections as collections
-import creds
+# import creds
 import pprint
+
+
 ##This File is based off of an old version of Collections due to this some parts may not be needed
 ##If that is the case it will be resolved
 
@@ -127,3 +129,58 @@ async def get_object_versions(
     
     # return list of versions
     return {"versions": [v for v in versions]} #have to loop, breaks just returning list ?
+
+"""Done the Tagging here for now as I'm not sure if it would work, not where to put it. but I think my logic makes sense"""
+@router.post("/taxii2/api1/collections/{collection_uuid}/objects/", tags=["Objects"]) #this should work but if not, look at concat instead
+async def assign_objects(
+    collection_uuid: str,
+    request: Request = None,
+    headers: dict = Depends(misp.get_headers)
+):
+    
+     #  extract headers from initial request
+    headers = dict(request.headers)
+    
+    # query misp for all tags using headers
+    print('getting all misp tags...')
+    misp_response = misp.query_misp_api('/tags/index', headers=headers)
+    tags = misp_response.get('Tag')  #returns a list of tag dicts
+    
+    # find matching tag, need to convert each collection id to uuid
+    print('comparing each tag id to user inputted uuid...')
+    tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
+    if not tag:
+        raise HTTPException(status_code=404, detail='Collection not found')
+    collection_name = tag['name'] #used to fetch matching events
+    
+    # setup payload to use in misp request
+    print('getting related misp events...')
+    payload = {
+        'tags': collection_name,
+        'returnFormat': 'json'
+    }
+    
+    # query misp for events matching this collection using restSearch
+    misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
+    events=misp_response['response']
+    
+    # convert each misp event into stix
+    objects = []
+    for event in events:
+        event=event['Event'] #misp wraps event inside, {'Event': {}}
+        # convert misp events into STIX
+        stixObject = conversion.misp_to_stix(event) #call function to handle conversion
+        print("Passed STIX Conversion")
+        objects.append(stixObject)
+    
+    if(tag in collections.get_misp_collections.collections):
+        collections.get_misp_collections.collections.append(objects)
+        
+
+    print("passed final")
+
+    
+    
+    return {'objects':objects}
+    
+    # return objects
