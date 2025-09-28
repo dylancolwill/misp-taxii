@@ -1,13 +1,10 @@
 from fastapi import APIRouter, Depends, Request, HTTPException, Query, Response
-from typing import List
 import functions.misp as misp
 import requests
 from misp_stix_converter import MISPtoSTIX21Parser
 import functions.conversion  as conversion
 import endpoints.collections as collections
 # import creds
-import pprint
-
 
 ##This File is based off of an old version of Collections due to this some parts may not be needed
 ##If that is the case it will be resolved
@@ -142,16 +139,12 @@ async def get_objects(
         # date_added_list.append(objects.created)
         objects.append(stixObject)
 
-
     print("passed final")
     print(objects)
 
     print('complete')
     
-    
     return {'objects':objects}
-
-
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/', tags=['Objects'])
 async def get_object(
