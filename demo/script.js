@@ -24,44 +24,46 @@ function send_request(customUrl) {
     });
 }
 
-$("#sendRequest").click(send_request);
+$("#sendRequest").click(function () {
+    send_request();
+});
 
-$("#btnDiscovery").click(function () {
-    send_request("http://127.0.0.1:8000/taxii2/");
+$("#btnDiscovery").click(function() {
     $("#requestUrl").val("http://127.0.0.1:8000/taxii2/");
+    send_request("http://127.0.0.1:8000/taxii2/");
 });
 
-$("#btnRoot").click(function () {
-    send_request("http://127.0.0.1:8000/taxii2/api1/");
+$("#btnRoot").click(function() {
     $("#requestUrl").val("http://127.0.0.1:8000/taxii2/api1/");
+    send_request("http://127.0.0.1:8000/taxii2/api1/");
 });
 
-$("#btnListCol").click(function () {
-    send_request("http://127.0.0.1:8000/taxii2/api1/collections/");
+$("#btnListCol").click(function() {
     $("#requestUrl").val("http://127.0.0.1:8000/taxii2/api1/collections/");
+    send_request("http://127.0.0.1:8000/taxii2/api1/collections/");
 });
 
-$("#btnGetCol").click(function () {
-    send_request("http://127.0.0.1:8000/taxii2/api1/collections/1883fdfb-249b-58f5-b445-87dff6eabc06");
+$("#btnGetCol").click(function() {
     $("#requestUrl").val("http://127.0.0.1:8000/taxii2/api1/collections/1883fdfb-249b-58f5-b445-87dff6eabc06");
+    send_request("http://127.0.0.1:8000/taxii2/api1/collections/1883fdfb-249b-58f5-b445-87dff6eabc06");
 });
 
-$("#btnListObj").click(function () {
-    send_request("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/");
+$("#btnListObj").click(function() {
     $("#requestUrl").val("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/");
+    send_request("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/");
 });
 
-$("#btnGetObj").click(function () {
-    send_request("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/identity--7f4e0b2a-1f7b-41f4-9e76-a18fa1ce86e8");
+$("#btnGetObj").click(function() {
     $("#requestUrl").val("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/identity--7f4e0b2a-1f7b-41f4-9e76-a18fa1ce86e8");
+    send_request("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/identity--7f4e0b2a-1f7b-41f4-9e76-a18fa1ce86e8");
 });
 
-$("#btnManifests").click(function () {
-    send_request("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/manifests");
+$("#btnManifests").click(function() {
     $("#requestUrl").val("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/manifests");
+    send_request("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/manifests");
 });
 
-$("#btnVersions").click(function () {
-    send_request("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/grouping--28f673f6-074f-484a-9a22-e89b786a5671/versions");
+$("#btnVersions").click(function() {
     $("#requestUrl").val("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/grouping--28f673f6-074f-484a-9a22-e89b786a5671/versions");
+    send_request("http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/grouping--28f673f6-074f-484a-9a22-e89b786a5671/versions");
 });
