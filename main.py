@@ -1,9 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-
-#Running this File will start the server
-#Before troubleshooting any errors make sure the server is running
-
 
 # import routers
 from endpoints.discovery import router as discovery_router
@@ -15,6 +12,16 @@ from endpoints.root import router as root_router
 # init fast api
 app = FastAPI(
     title="MISP TAXII Server",
+)
+
+# cors
+# FOR DEMO, MAY NEED TO CHANGE
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],   
+    allow_headers=["*"], 
 )
 
 # register endpoints
