@@ -101,7 +101,7 @@ async def get_object_versions(
 """"""
 
 @router.get("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
-async def assign_objects(
+async def get_objects(
     collection_uuid: str,
     request: Request = None,
 ):
@@ -197,17 +197,20 @@ async def get_object(
     print("Passed STIX Conversion")    
            
     # collect all versions of requested stix
+    requestedObject=None
     for bundle in object_bundles:
         for obj in bundle.objects:
             if obj.id == object_uuid: #match object uuid
                 timestamp = getattr(obj, 'modified', obj.created) #use modified otherwise created, per specs
                 requestedObject = obj
 
-        
+    # if object not found raise
+    if requestedObject is None:
+        raise HTTPException(status_code=404, detail=f'Object not found')
+
     # include taxii headers per specs
     # response.headers['X-TAXII-Date-Added-First'] = min(requestedObject).isoformat()
     # response.headers['X-TAXII-Date-Added-Last'] = max(requestedObject).isoformat()
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
-    print(requestedObject)
     return(requestedObject)
