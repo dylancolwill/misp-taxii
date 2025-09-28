@@ -8,7 +8,7 @@ function send_request(customUrl) {
     const url = customUrl || $("#requestUrl").val();
 
     if (!url) {
-        $("#outputSpace").html("<pre>No URL provided</pre>");
+        $("#outputSpace").html("<pre>url empty</pre>");
         return;
     }
     $.ajax({
