@@ -101,6 +101,7 @@ async def get_object_versions(
 async def get_objects(
     collection_uuid: str,
     request: Request = None,
+    response: Response = None
 ):
     
      #  extract headers from initial request
@@ -130,7 +131,7 @@ async def get_objects(
     events=misp_response['response']
     
     # convert each misp event into stix
-    objects = []
+    objects,first,last=[],[],[]
     for event in events:
         event=event['Event'] #misp wraps event inside, {'Event': {}}
         # convert misp events into STIX
@@ -143,11 +144,24 @@ async def get_objects(
             objects.extend(stixObject.get('objects', []))
         else:
             objects.extend(stixObject.objects)
+            
+        # collect created and modified timestamps for return header
+        for obj in objects:
+            for attr, lst in [('created', first), ('modified', last)]:
+                ts = getattr(obj, attr, obj.get(attr))  # get from stix
+                if ts:
+                    lst.append(ts.isoformat() if hasattr(ts, 'isoformat') else str(ts))
 
     print("passed final")
     print(objects)
 
     print('complete')
+    
+    if first and last:
+        response.headers['X-TAXII-Date-Added-First'] = min(first)
+        response.headers['X-TAXII-Date-Added-Last'] = max(last)
+    
+    response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
     return {'objects':objects}
 
@@ -212,8 +226,8 @@ async def get_object(
         raise HTTPException(status_code=404, detail=f'Object not found')
 
     # include taxii headers per specs
-    # response.headers['X-TAXII-Date-Added-First'] = min(requestedObject).isoformat()
-    # response.headers['X-TAXII-Date-Added-Last'] = max(requestedObject).isoformat()
+    response.headers['X-TAXII-Date-Added-First'] = getattr(requestedObject, 'created', None).isoformat()
+    response.headers['X-TAXII-Date-Added-Last'] = getattr(requestedObject, 'modified', None).isoformat()
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
     return {'objects':[requestedObject]}  
