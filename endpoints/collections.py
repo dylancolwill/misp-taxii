@@ -35,7 +35,7 @@ def get_misp_collections(request: Request = None, response: Response = None):
             'description': tag.get('description', None),
             'can_read': True, #if user got this far through request, can access
             'can_write': can_write,
-            'media_types': ['application/stix+json;version=2.1']
+            'media_types': ['application/taxii+json;version=2.1'] #NOT SURE IF THIS SHOULD BE SET
         })
         
     # set taxii content type in header as per specs
@@ -75,5 +75,5 @@ def get_misp_collection(collection_uuid: str, request: Request, response: Respon
         'description': tag.get('description', None),
         'can_read': True, #if user got this far through request, can access
         'can_write': can_write,
-        'media_types': ['application/stix+json;version=2.1']
+        'media_types': ['application/taxii+json;version=2.1'] #NOT SURE IF THIS SHOULD BE SET
     }
