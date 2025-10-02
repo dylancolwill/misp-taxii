@@ -137,7 +137,12 @@ async def get_objects(
         stixObject = conversion.misp_to_stix(event) #call function to handle conversion
         print("Passed STIX Conversion")
         # date_added_list.append(objects.created)
-        objects.append(stixObject)
+        
+        # unwrap stix objects from bundle and add to list for return
+        if isinstance(stixObject, dict):
+            objects.extend(stixObject.get('objects', []))
+        else:
+            objects.extend(stixObject.objects)
 
     print("passed final")
     print(objects)
@@ -180,22 +185,27 @@ async def get_object(
         'returnFormat': 'json'
     }
     
-    
     # query misp for events matching this collection using restSearch
     misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
     events = misp_response.get('response', [])
     
     # convert events into stix bundles 
-    object_bundles = [conversion.misp_to_stix(event['Event']) for event in events]
+    stix_objects = []
+    for event in events:
+        bundle = conversion.misp_to_stix(event['Event'])
+        if isinstance(bundle, dict):
+            stix_objects.extend(bundle.get('objects', []))
+        else:
+            stix_objects.extend(bundle.objects)
     print("Passed STIX Conversion")    
            
     # collect all versions of requested stix
     requestedObject=None
-    for bundle in object_bundles:
-        for obj in bundle.objects:
-            if obj.id == object_uuid: #match object uuid
-                timestamp = getattr(obj, 'modified', obj.created) #use modified otherwise created, per specs
-                requestedObject = obj
+    # for bundle in stix_objects:
+    for obj in stix_objects:
+        if obj.id == object_uuid: #match object uuid
+            timestamp = getattr(obj, 'modified', obj.created) #use modified otherwise created, per specs
+            requestedObject = obj
 
     # if object not found raise
     if requestedObject is None:
@@ -206,4 +216,4 @@ async def get_object(
     # response.headers['X-TAXII-Date-Added-Last'] = max(requestedObject).isoformat()
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
-    return(requestedObject)
+    return {'objects':[requestedObject]}  
