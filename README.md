@@ -16,3 +16,4 @@
 - [ ] make use of api roots
 - [ ] remove testing and development code blocks
   - [ ] change print statements to debug log
+- [ ] ensure correct response headers
