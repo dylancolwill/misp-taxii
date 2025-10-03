@@ -100,6 +100,13 @@ async def get_object_versions(
 @router.get("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
 async def get_objects(
     collection_uuid: str,
+    added_after: str = Query(None, alias='added_after'),
+    limit: int = Query(None, alias='limit'),
+    next_token: str = Query(None, alias='next'), #taxii next
+    object_id: str = Query(None, alias='match[id]'),
+    object_type: str = Query(None, alias='match[type]'), #dont think misp has these filters?
+    version: str = Query(None, alias='match[version]'),
+    spec_version: str = Query(None, alias='match[spec_version]'),
     request: Request = None,
     response: Response = None
 ):
@@ -126,6 +133,14 @@ async def get_objects(
         'returnFormat': 'json'
     }
     
+    # apply filters where possible
+    if added_after:
+        payload['date_from'] = added_after
+    if limit:
+        payload['limit'] = limit
+    if next_token:
+        payload['page'] = int(next_token) 
+    
     # query misp for events matching this collection using restSearch
     misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
     events=misp_response['response']
@@ -151,6 +166,20 @@ async def get_objects(
                 ts = getattr(obj, attr, obj.get(attr))  # get from stix
                 if ts:
                     lst.append(ts.isoformat() if hasattr(ts, 'isoformat') else str(ts))
+                    
+    # custom filters not included in misp
+    # need to do after repackaging to not damage bundle
+    # if a filter is not set, will be ignored. 
+    filtered_objects = [
+        obj for obj in objects #creates a new list and loopes over every object
+        if (not object_id or obj['id'] == object_id) 
+        and (not object_type or obj['id'].split('--', 1)[0] == object_type) #extract stix type from object id
+        and (not version or obj['version'] == version)
+        #for each object, checks the if condition, if true is included in new list, if false skips
+        # if no filters are applied, every condition is true, all are included in list
+    ]
+    
+    objects=filtered_objects
 
     print("passed final")
     print(objects)
