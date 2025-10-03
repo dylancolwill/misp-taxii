@@ -7,9 +7,9 @@ router = APIRouter()
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/manifests', tags=['Manifests'])
 def get_misp_manifests(collection_uuid: str,
-    added_after: str = Query(None),
-    limit: int = Query(None),
-    next_token: str = Query(None), #taxii next
+    added_after: str = Query(None, alias='added_after'),
+    limit: int = Query(None, alias='limit'),
+    next_token: str = Query(None, alias='next'), #taxii next
     object_id: str = Query(None, alias='match[id]'),
     object_type: str = Query(None, alias='match[type]'), #dont think misp has these filters?
     version: str = Query(None, alias='match[version]'),
@@ -64,21 +64,42 @@ def get_misp_manifests(collection_uuid: str,
         stixObject = conversion.misp_to_stix(event) #call function to handle conversion
         print("Passed STIX Conversion")
         objects.append(stixObject)
+        
+    # # custom filters not included in misp
+    # _objects=objects['objects'] #extract list of stix objects in bundle
+    # if object_id:
+    #     for object in objects: #loop through objects dict key
+    #         print(object['id'])    
+            
     
     #repackage as manifests according to taxii spec
     manifests=[]
     date_added_list = []
     for bundle in objects:  # each item is a stix bundle
         for obj in bundle.objects:
-            if obj.type is not 'identity': #identity not needed 
+            if obj.type != 'identity': #identity not needed 
                 manifests.append({
                     'id': obj.id,
                     'date_added': obj.created ,
                     'version': getattr(obj, 'modified', obj.created),  # use modified if exists, else created
                     'media_type': 'application/stix+json;version=2.1'
                 })
-                date_added_list.append(obj.created)
-            
+                date_added_list.append(obj.created) 
+              
+    # custom filters not included in misp
+    # need to do after repackaging to not damage bundle
+    # if a filter is not set, will be ignored. 
+    filtered_manifests = [
+        obj for obj in manifests #creates a new list and loopes over every object
+        if (not object_id or obj['id'] == object_id) 
+        and (not object_type or obj['id'].split('--', 1)[0] == object_type) #extract stix type from object id
+        and (not version or obj['version'] == version)
+        #for each object, checks the if condition, if true is included in new list, if false skips
+        # if no filters are applied, every condition is true, all are included in list
+    ]
+    
+    manifests=filtered_manifests
+        
     print('complete')
     
     # add required response headers per spec
