@@ -1,0 +1,25 @@
+body {
+    background-color: #f0f8ff;
+}
+
+button {
+    margin-bottom: 1.2vh;
+}
+
+#btnGroup {
+    padding-top: 5dvh;
+}
+
+#requestHeading {
+    padding-top: 5dvh
+}
+
+#outputPanel {
+    padding-top: 8dvh
+}
+
+#outputSpace {
+    white-space: pre - wrap;
+    overflow-y: auto;
+    font-family: monospace;
+}

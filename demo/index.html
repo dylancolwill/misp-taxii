@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <!-- jQuery library -->
+        <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script
+            src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <title>Demo UI for MISP-STIX</title>
+
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3 col-lg-3">
+                    <div class="btn-group-vertical" id="btnGroup">
+                        <button type="button" class="btn btn-primary"
+                            id="btnDiscovery">Server Discovery</button>
+                        <button type="button" class="btn btn-primary"
+                            id="btnRoot">Server Root</button>
+                        <button type="button" class="btn btn-primary"
+                            id="btnListCol">List Collections</button>
+                        <button type="button" class="btn btn-primary"
+                            id="btnGetCol">Get Collection</button>
+                        <button type="button" class="btn btn-primary"
+                            id="btnListObj">List Objects</button>
+                        <button type="button" class="btn btn-primary"
+                            id="btnGetObj">Get Object</button>
+                        <button type="button" class="btn btn-primary"
+                            id="btnManifests">Manifests</button>
+                        <button type="button" class="btn btn-primary"
+                            id="btnVersions">Object Versions</button>
+                    </div>
+                </div>
+                <br>
+                <div class="col-md-9 col-lg-9">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Custom</div>
+                        <div class="panel-body">
+                            <input type="text" id="requestUrl"
+                                class="form-control"
+                                style="margin-bottom: 10px;">
+
+                            <button id="sendRequest" class="btn btn-success"
+                                style="margin-top: 10px;">Send Request</button>
+                        </div>
+                    </div>
+
+                      <div class="panel panel-default">
+                            <div class="panel-heading">Request Output</div>
+                            <div class="panel-body" id="outputSpace"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <script src="script.js"></script>
+        </body>
+
+    </html>
