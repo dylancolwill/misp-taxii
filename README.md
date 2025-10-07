@@ -21,8 +21,9 @@
 
 - [ ] ability to view headers in demo
 
-##Features
+## Features
 
-##Install from pip
+## Install from pip
 
-##Running Test Files
+## Running Test Files
+
