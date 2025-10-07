@@ -32,7 +32,7 @@ Download the latest repository and create a virtual environment
 git clone https://github.com/dylancolwill/misp-taxii.git && cd misp-taxii
 python -m venv venv
 ./venv/Scripts/activate (Windows)
-source ./venv/bin/activate
+source ./venv/bin/activate (Linux/macOS)
 ```
 
 To install all the necessary libraries for this project, please run
