@@ -47,9 +47,9 @@ def headers_verify(headers):
     if 'authorization' not in headers:
         raise HTTPException(status_code=401, detail='Missing authorization key in header')
     if 'accept' not in headers:
-        raise HTTPException(status_code=400, detail='Missing TAXII accept header')
+        raise HTTPException(status_code=406, detail='Missing TAXII accept header')
     elif headers['accept'] != 'application/taxii+json;version=2.1':
-        raise HTTPException(status_code=400, detail='Invalid accept header')
+        raise HTTPException(status_code=406, detail='Invalid accept header')
     print('header verification complete')
     
 
