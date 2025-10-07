@@ -35,7 +35,7 @@ python -m venv venv
 source ./venv/bin/activate (Linux/macOS)
 ```
 
-To install all the necessary libraries for this project, please run
+To install all the necessary libraries for this project
 ```
 pip install -r requirements.txt
 ```
