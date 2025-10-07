@@ -60,8 +60,6 @@ async def get_object_versions(
     # apply filters where possible
     if added_after:
         payload['date_from'] = added_after
-    if limit:
-        payload['limit'] = limit
     if next_token:
         payload['page'] = int(next_token) 
     
@@ -86,14 +84,31 @@ async def get_object_versions(
 
     # sort chronologically
     versions.sort()
+    
+    # pagination
+    more = False
+    next_value = None
+    start = int(next_token or 0)
+    end = start + limit if limit is not None else len(versions)
+    paged_versions = versions[start:end]
+    if limit is not None and len(versions) > end:
+        more = True
+        next_value = str(end)
         
     # include taxii headers per specs
     response.headers['X-TAXII-Date-Added-First'] = min(versions).isoformat()
     response.headers['X-TAXII-Date-Added-Last'] = max(versions).isoformat()
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
+    # list of versions with taxii envelope
+    result = {"versions": [v for v in paged_versions]}
+    if limit is not None:
+        result["more"] = more
+        if more:
+            result["next"] = next_value
+    
     # return list of versions
-    return {"versions": [v for v in versions]} #have to loop, breaks just returning list ?
+    return result
 
 """"""
 
@@ -136,8 +151,6 @@ async def get_objects(
     # apply filters where possible
     if added_after:
         payload['date_from'] = added_after
-    if limit:
-        payload['limit'] = limit
     if next_token:
         payload['page'] = int(next_token) 
     
@@ -180,6 +193,18 @@ async def get_objects(
     ]
     
     objects=filtered_objects
+    
+    more = False
+    next_value = None
+    total_objects = len(objects)
+    if limit is not None:
+        if total_objects > limit:
+            more = True
+            objects = objects[:limit]
+            # increment page or offset
+            next_value = str(int(next_token or 0) + 1)
+        else:
+            objects = objects[:limit]
 
     print("passed final")
     print(objects)
@@ -192,7 +217,14 @@ async def get_objects(
     
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
-    return {'objects':objects}
+    # add more to envelope if paginating
+    result = {'objects': objects}
+    if limit is not None:
+        result['more'] = more
+        if more:
+            result['next'] = next_value
+    
+    return result
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/', tags=['Objects'])
 async def get_object(
@@ -260,3 +292,12 @@ async def get_object(
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
     return {'objects':[requestedObject]}  
+
+@router.post("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
+async def get_objects(
+    collection_uuid: str,
+    object_uuid: str,
+    request: Request = None,
+    response: Response = None
+):
+    pass

@@ -99,6 +99,16 @@ def get_misp_manifests(collection_uuid: str,
     ]
     
     manifests=filtered_manifests
+    
+    # taxii pagination
+    more = False
+    next_value = None
+    start = int(next_token or 0)
+    end = start + limit if limit is not None else len(manifests)
+    paged_manifests = manifests[start:end]
+    if limit is not None and len(manifests) > end:
+        more = True
+        next_value = str(end)
         
     print('complete')
     
@@ -107,4 +117,11 @@ def get_misp_manifests(collection_uuid: str,
         response.headers['X-TAXII-Date-Added-First'] = min(date_added_list).isoformat()
         response.headers['X-TAXII-Date-Added-Last'] = max(date_added_list).isoformat()
     
-    return {'objects':manifests}
+    # list of object metadata with taxii envelope
+    result = {'objects': paged_manifests}
+    if limit is not None:
+        result['more'] = more
+        if more:
+            result['next'] = next_value
+
+    return result
