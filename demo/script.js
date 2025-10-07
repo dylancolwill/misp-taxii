@@ -48,7 +48,7 @@ $("#btnListCol").click(function() {
 });
 
 $("#btnGetCol").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/collections/1883fdfb-249b-58f5-b445-87dff6eabc06";
+    const url = "http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90";
     $("#requestUrl").val(url);
     send_request(url);
 });
