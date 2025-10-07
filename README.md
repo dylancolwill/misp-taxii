@@ -38,8 +38,9 @@ python main.py
   - [x] api root
 - [ ] https to securely use api keys, enable tls verification
 - [x] verify user passes api key
-- [x] include manifests filtering
+- [x] include filtering
   - [x] test filtering
+  - [ ] test filtering checks
 - [x] map misp events to stix object type to include in uuid for taxii objects
 - [x] make use of api roots
 - [ ] remove testing and development code blocks
