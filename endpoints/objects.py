@@ -4,6 +4,7 @@ import requests
 from misp_stix_converter import MISPtoSTIX21Parser
 import functions.conversion  as conversion
 import endpoints.collections as collections
+from datetime import datetime
 # import creds
 
 ##This File is based off of an old version of Collections due to this some parts may not be needed
@@ -11,14 +12,21 @@ import endpoints.collections as collections
 
 router = APIRouter()
 
-taxii_accept = "application/taxii+json;version=2.1"
-taxii_content_type = "application/taxii+json;version=2.1"
-
-
 print("before router")
-"""Tag association section, this section aim to find the Tags on the objects"""
 
+def check_unknown_filters(allowed_filters, request):
+    # get query parameter keys from the request
+    query_params = set(request.query_params.keys())
 
+    # check for unsupported filters
+    unknown_filters = [filter for filter in query_params if filter not in allowed_filters]
+    if unknown_filters:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown filter(s): {', '.join(unknown_filters)}"
+        )
+
+        
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/versions/', tags=['Objects'])
 async def get_object_versions(
     collection_uuid: str,
@@ -34,6 +42,17 @@ async def get_object_versions(
     returns all versions of an object, given collection and object uuid
     since taxii requires uuid but misp uses id, need to fetch all tags and filter in code, cannot query for id
     """
+    
+    # verify filters are correct
+    check_unknown_filters({'added_after', 'limit', 'next_token', 'match[spec_version]'}, request)
+    if limit is not None and (not isinstance(limit, int) or limit <= 0):
+        raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
+    if added_after is not None:
+        try:
+            datetime.fromisoformat(added_after)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
+    
     #  extract headers from initial request
     headers = dict(request.headers)
     
@@ -101,16 +120,14 @@ async def get_object_versions(
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     
     # list of versions with taxii envelope
-    result = {"versions": [v for v in paged_versions]}
+    result = {'versions': [v for v in paged_versions]}
     if limit is not None:
-        result["more"] = more
+        result['more'] = more
         if more:
-            result["next"] = next_value
+            result['next'] = next_value
     
     # return list of versions
     return result
-
-""""""
 
 @router.get("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
 async def get_objects(
@@ -125,6 +142,16 @@ async def get_objects(
     request: Request = None,
     response: Response = None
 ):
+    check_unknown_filters({'added_after', 'limit', 'next', 'match[id]', 'match[type]', 'match[version]', 'match[spec_version]'
+    }, request)
+    if limit is not None and (not isinstance(limit, int) or limit <= 0):
+        raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
+    if added_after is not None:
+        try:
+            datetime.fromisoformat(added_after)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
+    
     
      #  extract headers from initial request
     headers = dict(request.headers)
@@ -230,6 +257,9 @@ async def get_objects(
 async def get_object(
     collection_uuid: str,
     object_uuid: str,
+    added_after: str = Query(None, alias='added_after'),
+    limit: int = Query(None, alias='limit'),
+    next_token: str = Query(None, alias='next'), #taxii next
     request: Request = None,
     response: Response = None
 ):
@@ -237,6 +267,15 @@ async def get_object(
     returns all versions of an object, given collection and object uuid
     since taxii requires uuid but misp uses id, need to fetch all tags and filter in code, cannot query for id
     """
+    check_unknown_filters({'added_after', 'limit', 'next'}, request)
+    if limit is not None and (not isinstance(limit, int) or limit <= 0):
+        raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
+    if added_after is not None:
+        try:
+            datetime.fromisoformat(added_after)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
+    
     #  extract headers from initial request
     headers = dict(request.headers)
     
