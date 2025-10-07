@@ -23,7 +23,9 @@
 
 ## Features
 
-## Install from pip
-
+## Install Requirements
+To install all the necessary libraries for this project, please run:
+  `pip install -r requirements.txt`
 ## Running Test Files
+
 
