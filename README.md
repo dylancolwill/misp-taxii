@@ -18,4 +18,14 @@
   - [ ] change print statements to debug log
 - [ ] ensure correct response headers
 - [ ] include ability to return taxii and stix
+
 - [ ] ability to view headers in demo
+
+## Features
+
+## Install Requirements
+To install all the necessary libraries for this project, please run:
+  `pip install -r requirements.txt`
+## Running Test Files
+
+
