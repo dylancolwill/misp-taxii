@@ -26,8 +26,9 @@ def get_user_perms(headers=None):
     
     response = query_misp_api('/users/view/me', headers=headers)
     perm_modify = response['Role']['perm_modify']
+    perm_add = response['Role']['perm_add']
     
-    return perm_modify
+    return perm_modify, perm_add
 
 def get_headers(request: Request):
     api_key = request.headers.get('Authorization') 
@@ -49,7 +50,7 @@ def headers_verify(headers):
     if 'accept' not in headers:
         raise HTTPException(status_code=406, detail='Missing TAXII accept header')
     elif headers['accept'] != 'application/taxii+json;version=2.1':
-        raise HTTPException(status_code=406, detail='Invalid accept header')
+        raise HTTPException(status_code=406, detail='The media type provided in the Accept header is invalid')
     print('header verification complete')
     
 
@@ -62,13 +63,14 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     headers_verify(headers=headers)
     
     # get api from header
-    misp_api_key = headers.get('authorization')
+    misp_api_key = headers.get('Authorization')
+    print(misp_api_key)
     
     #set misp relevent headers
     misp_headers =  {'Authorization': misp_api_key,
             'Accept': 'application/json',
             'Content-Type': 'application/json'}
-
+    
     url = f'{misp_ip}{endpoint}'
 
     try:
@@ -81,9 +83,9 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
         elif method.upper() == 'DELETE':
             response = requests.delete(url, headers=misp_headers, verify=False)
         else:
-            raise ValueError(f'Unsupported HTTP method: {method}')
+            raise ValueError(f'unsupported http {method}')
     except Exception as e:
-        raise RuntimeError(f'Error calling MISP {endpoint}: {e}')
+        raise RuntimeError(f'error calling misp {endpoint}: {e}')
 
     # raise http errors
     response.raise_for_status()
