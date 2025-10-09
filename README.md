@@ -48,3 +48,4 @@ python main.py
 - [ ] ensure correct response headers
 - [ ] ~~include ability to return taxii and stix~~
 - [ ] ability to view headers in demo
+- [ ] failure responses
