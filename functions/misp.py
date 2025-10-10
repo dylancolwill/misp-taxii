@@ -42,11 +42,8 @@ def headers_verify(headers):
     if headers is None :
         raise HTTPException(status_code=400, detail='Missing required header')
     
-    #set headers to lower case
-    headers = {k.lower(): v for k, v in headers.items()}
-    
     if 'authorization' not in headers:
-        raise HTTPException(status_code=401, detail='Missing authorization key in header')
+        raise HTTPException(status_code=401, detail='Missing Authorization key in header')
     if 'accept' not in headers:
         raise HTTPException(status_code=406, detail='Missing TAXII accept header')
     elif headers['accept'] != 'application/taxii+json;version=2.1':
@@ -60,11 +57,15 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     allows other modules to query without duplicating logic
     """
     
-    headers_verify(headers=headers)
+    #set headers to lower case
+    headers = {k.lower(): v for k, v in headers.items()}
+    
+    # headers_verify(headers=headers)
     
     # get api from header
-    misp_api_key = headers.get('Authorization')
-    print(misp_api_key)
+    misp_api_key = headers.get('authorization')
+    # print(misp_api_key)
+    # print(headers)
     
     #set misp relevent headers
     misp_headers =  {'Authorization': misp_api_key,
@@ -89,6 +90,6 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
 
     # raise http errors
     response.raise_for_status()
-    print('misp.py')
-    print(response)
+    # print('misp.py')
+    # print(response)
     return response.json()
