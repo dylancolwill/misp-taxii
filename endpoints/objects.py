@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, Request, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, Request, HTTPException, Query, Response, Body
 import functions.misp as misp
 import requests
-from misp_stix_converter import MISPtoSTIX21Parser
+from misp_stix_converter import MISPtoSTIX21Parser, InternalSTIX2toMISPParser
 import functions.conversion  as conversion
 import endpoints.collections as collections
+import stix2
 from datetime import datetime
+# import json
 # import creds
 
 ##This File is based off of an old version of Collections due to this some parts may not be needed
@@ -142,8 +144,7 @@ async def get_objects(
     request: Request = None,
     response: Response = None
 ):
-    check_unknown_filters({'added_after', 'limit', 'next', 'match[id]', 'match[type]', 'match[version]', 'match[spec_version]'
-    }, request)
+    check_unknown_filters({'added_after', 'limit', 'next', 'match[id]', 'match[type]', 'match[version]', 'match[spec_version]'}, request)
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
     if added_after is not None:
@@ -333,10 +334,106 @@ async def get_object(
     return {'objects':[requestedObject]}  
 
 @router.post("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
-async def get_objects(
+async def add_objects(
     collection_uuid: str,
-    object_uuid: str,
     request: Request = None,
-    response: Response = None
-):
-    pass
+    response: Response = None,
+    stix_bundle: dict = Body(...)
+    ):
+    #  extract headers from initial request
+    headers = dict(request.headers)
+    
+    print( misp.get_user_perms(headers=headers)) #check user perms, will raise 403 if no write access
+    
+    # convert collection uuid to misp id
+    misp_response = misp.query_misp_api('/tags/index', headers=headers)
+    tags = misp_response.get('Tag', [])
+    tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
+    if not tag:
+        raise HTTPException(status_code=404, detail='Collection not found')
+    collection_name = tag['name']
+    
+    # convert dict to stix bundle if needed
+    try:
+        bundle = stix2.parse(stix_bundle, allow_custom=True)
+        if not isinstance(bundle, stix2.Bundle):
+            raise ValueError("Provided data is not a STIX2 Bundle object")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f'Invalid STIX bundle: {e}')
+    
+    # convert stix bundle to misp event
+    try:
+        parser = InternalSTIX2toMISPParser()
+        parser.load_stix_bundle(bundle)
+        parser.parse_stix_bundle()
+        # print(bundle.objects)
+        misp_event = parser.misp_events
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f'Failed to convert STIX to MISP {e}')
+    
+    # attach collection tag to event
+    if hasattr(misp_event, 'Tag'):
+        misp_event.Tag.append({'name': collection_name})
+    else:
+        misp_event['Tag'] = [{'name': collection_name}]
+        
+    # print(parser.misp_events)
+    
+    event = parser.misp_events
+    print("Event info:", event.info)
+    print("Number of attributes:", len(event.attributes))
+    for attr in event.attributes:
+        print(attr.type, attr.value)
+
+
+    # push event to misp
+    event_json = misp_event.to_json() if hasattr(misp_event, 'to_json') else misp_event
+    
+    import json
+    # ensure event_json is a dict, not string
+    if isinstance(event_json, str):
+        event_json = json.loads(event_json)
+        
+        
+    if "Event" not in event_json:
+        event_json = {"Event": event_json}
+    
+    
+    # for e in parser.misp_events:
+    #     print("MISP Event:", e.info)
+    #     print("Attributes:", e.attributes)
+    
+
+    print("\n--- MISP EVENT PAYLOAD TYPE ---", type(event_json))
+    try:
+        print(json.dumps(event_json, indent=2)[:1000])
+    except Exception:
+        print(str(event_json)[:1000])
+        
+        
+        
+        
+#     event_json= {
+#     "Event": {
+#         "info": "Test event",
+#         "date": "2025-10-09"
+#     }
+# }
+   
+
+    try:
+        result = misp.query_misp_api('/events/add', method='POST', headers=headers, data=event_json)
+        print(result)
+    except requests.exceptions.HTTPError as e:
+        status = e.response.status_code
+        if status==403: raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
+
+    try:
+        if 'Event' not in result:
+            raise HTTPException(status_code=500, detail='failed to add event to misp')
+    except requests.exceptions.HTTPError as e:
+        raise HTTPException(status_code=403, detail=f'Possible duplicate object') #NOT SURE IF WE CAN STRAY FROM TAXII RESPONSES
+
+
+    response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
+    return {"success": True, "event": result['Event']}
