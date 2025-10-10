@@ -24,7 +24,7 @@ def get_misp_collections(request: Request = None, response: Response = None):
 
     # determine user permissions from misp
     print('getting user perms...')
-    can_write=misp.get_user_perms(headers=headers) #function to check write access
+    can_write,_=misp.get_user_perms(headers=headers) #function to check write access
     
     # convert each misp tag into taxii collection object
     collections = []
@@ -59,7 +59,7 @@ def get_misp_collection(collection_uuid: str, request: Request, response: Respon
 
     # determine user permissions from misp
     print('getting user perms...')
-    can_write=misp.get_user_perms(headers=headers) #get the user perms from function in core
+    can_write,_=misp.get_user_perms(headers=headers) #get the user perms from function in core
     
     # find matching tag, converting each collection id to uuid then checking if match
     print('comparing each tag id to user inputted uuid...')
