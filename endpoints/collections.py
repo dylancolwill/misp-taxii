@@ -19,8 +19,12 @@ def get_misp_collections(request: Request = None, response: Response = None):
     
     # query misp for all tags using headers
     print('getting all misp tags...')
-    misp_response = misp.query_misp_api('/tags/index', headers=headers)
-    tags = misp_response.get('Tag')  #returns a list of tag dicts
+    try:
+        misp_response = misp.query_misp_api('/tags/index', headers=headers)
+        tags = misp_response.get('Tag')  #returns a list of tag dicts
+    except requests.exceptions.HTTPError as e:
+        if e.status_code==403:
+            raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
 
     # determine user permissions from misp
     print('getting user perms...')
@@ -58,7 +62,8 @@ def get_misp_collection(collection_uuid: str, request: Request, response: Respon
         misp_response = misp.query_misp_api('/tags/index', headers=headers)
         tags = misp_response.get('Tag')  #returns a list of tag dicts
     except requests.exceptions.HTTPError as e:
-        raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
+        if e.status_code==403:
+            raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
 
     # determine user permissions from misp
     print('getting user perms...')
@@ -68,7 +73,7 @@ def get_misp_collection(collection_uuid: str, request: Request, response: Respon
     print('comparing each tag id to user inputted uuid...')
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
-        raise HTTPException(status_code=404, detail='The  Collection ID is not found') #error if no matching tag
+        raise HTTPException(status_code=404, detail='The Collection ID is not found') #error if no matching tag
     
     response.headers['Content-Type']= 'application/taxii+json;version=2.1'
     
