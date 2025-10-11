@@ -43,7 +43,7 @@ def headers_verify(headers):
         raise HTTPException(status_code=400, detail='Missing required header')
     
     if 'authorization' not in headers:
-        raise HTTPException(status_code=401, detail='Missing Authorization key in header')
+        raise HTTPException(status_code=401, detail='The client needs to authenticate')
     if 'accept' not in headers:
         raise HTTPException(status_code=406, detail='Missing TAXII accept header')
     elif headers['accept'] != 'application/taxii+json;version=2.1':
@@ -84,7 +84,7 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
         else:
             raise ValueError(f'unsupported http {method}')
     except Exception as e:
-        raise RuntimeError(f'error calling misp {endpoint}: {e}')
+        raise HTTPException(status_code=400, detail='The server did not understand the request')
 
     # raise http errors
     response.raise_for_status()
