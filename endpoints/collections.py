@@ -9,10 +9,17 @@ router = APIRouter()
 
 @router.get('/taxii2/{api_root}/collections/', tags=['Collections'])
 def get_misp_collections(request: Request = None, response: Response = None):
-    """
-    fetch all misp tags and convert them into taxii 2.1 collections.
-    each tag becomes a collection.
-    """
+
+    """Fetch all misp tags and convert them into taxii 2.1 collections.
+    NOTE: Each tag becomes a collection.
+
+    Parameters:
+        request:
+        reponse:
+
+    Returns:
+        TAXII Collections: Returns ALL TAXII Collections, they contain an ID, Title, Description, Read and Write Permissions
+    """    
     # extract headers from initial request
     headers = dict(request.headers)
     print(headers)
@@ -46,9 +53,20 @@ def get_misp_collections(request: Request = None, response: Response = None):
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}', tags=['Collections'])
 def get_misp_collection(collection_uuid: str, request: Request, response: Response):
-    """
-    since taxii requires uuid and misp id, need to fetch all tags and filter in code, cannot query for id
-    """
+    """ 
+    Since taxii requires uuid and misp id, need to fetch all tags and filter in code, cannot query for id
+    
+    Parameters:
+        collection_uuid: Created by converting Tag ID. Allows for Tag-Collection Mapping
+        request:
+        response:
+    
+    Raises:
+        404: Returns if no matching Tag is found
+
+    Returns:
+        TAXII Collection: Containing an ID, Title, Description, Read and Write Permissions
+    """    
     # extract headers from initial request
     headers = dict(request.headers)
     

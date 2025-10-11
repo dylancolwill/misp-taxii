@@ -15,6 +15,9 @@ discovery_info= {
 @router.get('/taxii2/', tags=['Discovery'])
 async def get_discovery():
     """
-    provides metadata about the taxii server
-    """
+    Provides metadata about the TAXII server
+
+    Returns:
+        discovery_info: A dictionary containing basic TAXII server metadata
+    """    
     return discovery_info

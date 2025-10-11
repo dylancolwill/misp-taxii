@@ -18,9 +18,31 @@ def get_misp_manifests(collection_uuid: str,
     response: Response = None
 ):
     """
-    takes collection uuid and returns metadata for stix objects in that collection.
-    since taxii requires uuid but misp uses id, need to fetch all tags and filter in code, cannot query for id
-    """
+    Takes collection uuid and returns metadata for stix objects in that collection.
+    since TAXII requires uuid but misp uses id, need to fetch all tags and filter in code. 
+    Cannot query directly for id and expect Collections to match Tags, Tag ID conversion must first be done.
+
+    Parameters:
+        collection_uuid:
+        added_after:
+        limit:
+        next_token: 
+        object_id: 
+        object_type: 
+        version: 
+        spec_version: 
+        request: 
+        response: 
+
+    Raises:
+        404: The Endpoint could not find the collection, in this scenario make sure the inputted ID 
+        for querying is correct, and that the MISP server has the Tag.
+
+    Returns:
+        result: 
+
+    """    
+    
     #  extract headers from initial request
     headers = dict(request.headers)
     

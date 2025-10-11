@@ -53,9 +53,22 @@ def headers_verify(headers):
 
 def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     """
-    function to call misp api dynamically
+    Function to call misp api dynamically
     allows other modules to query without duplicating logic
-    """
+
+    Parameters:
+        endpoint:
+        method:
+        data:
+        headers:
+
+    Raises:
+        ValueError: _description_
+        RuntimeError: _description_
+
+    Returns:
+        response.json(): Returns whatever data was queried from the MISP
+    """    
     
     #set headers to lower case
     headers = {k.lower(): v for k, v in headers.items()}

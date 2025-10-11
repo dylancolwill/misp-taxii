@@ -40,10 +40,29 @@ async def get_object_versions(
     request: Request = None,
     response: Response = None
 ):
+
     """
-    returns all versions of an object, given collection and object uuid
-    since taxii requires uuid but misp uses id, need to fetch all tags and filter in code, cannot query for id
-    """
+    Returns all versions of an object, given collection and object uuid
+    since TAXII requires uuid but misp uses id, need to fetch all tags and filter in code. 
+    Cannot query directly for id and expect Tags to match, Tag ID conversion must first be done.
+
+    Parameters:
+    collection_uuid: Created by converting Tag ID. Allows for Tag-Collection Mapping
+    object_uuid: 
+    added_after:
+    limit:
+    next_token: 
+    spec_version:
+    request: 
+    response: 
+
+    Raises:
+        400: Non-positive integer has been used as the 'limit' parameter, OR added_after parameter was not an ISO date string
+        404: The requested collection OR Object was not found
+
+    Returns:
+        result: Returns a list of object versions
+    """    
     
     # verify filters are correct
     check_unknown_filters({'added_after', 'limit', 'next_token', 'match[spec_version]'}, request)
@@ -132,6 +151,7 @@ async def get_object_versions(
     return result
 
 @router.get("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
+
 async def get_objects(
     collection_uuid: str,
     added_after: str = Query(None, alias='added_after'),
@@ -144,6 +164,31 @@ async def get_objects(
     request: Request = None,
     response: Response = None
 ):
+    
+    """
+    Returns all Objects belonging to a specified collection, given collection_uuid.
+    since TAXII requires uuid but misp uses id, need to fetch all tags and filter in code. 
+    Cannot query directly for id and expect Tags to match, Tag ID conversion must first be done.
+
+    Parameters:
+    collection_uuid: Created by converting Tag ID. Allows for Tag-Collection Mapping
+    added_after: 
+    limit: 
+    next_token: 
+    object_id: 
+    object_type: 
+    version: 
+    spec_version: 
+    request: 
+    response: 
+
+    Raises:
+        400: Non-positive integer has been used as the 'limit' parameter, OR added_after parameter was not an ISO date string
+        404: The requested collection OR Object was not found
+
+    Returns:
+        result: All STIX objects belonging to the specified collection, each object is bundled and then put into a collection.
+    """    
     check_unknown_filters({'added_after', 'limit', 'next', 'match[id]', 'match[type]', 'match[version]', 'match[spec_version]'}, request)
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
@@ -264,10 +309,28 @@ async def get_object(
     request: Request = None,
     response: Response = None
 ):
+  
     """
-    returns all versions of an object, given collection and object uuid
-    since taxii requires uuid but misp uses id, need to fetch all tags and filter in code, cannot query for id
-    """
+    Returns a specified object, given collection and object uuid.
+    since TAXII requires uuid but misp uses id, need to fetch all tags and filter in code. 
+    Cannot query directly for id and expect Tags to match, Tag ID conversion must first be done.
+
+    Parameters:
+    collection_uuid: Created by converting Tag ID. Allows for Tag-Collection Mapping
+    object_uuid: 
+    added_after: 
+    limit: 
+    next_token: 
+    request: 
+    response: 
+
+    Raises:
+        400: Non-positive integer has been used as the 'limit' parameter, OR added_after parameter was not an ISO date string
+        404: The requested collection OR Object was not found
+
+    Returns:
+        {'objects':[requestedObject]}: A bundled STIX object in a collection.
+    """    
     check_unknown_filters({'added_after', 'limit', 'next'}, request)
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
@@ -340,6 +403,26 @@ async def add_objects(
     response: Response = None,
     stix_bundle: dict = Body(...)
     ):
+
+    """
+    Adds a specified object to the MISP.
+    since TAXII requires uuid but misp uses id, need to fetch all tags and filter in code. 
+    Cannot query directly for id and expect Tags to match, Tag ID conversion must first be done.
+
+    Parameters:
+        collection_uuid: Created by converting Tag ID. Allows for Tag-Collection Mapping
+        request: R
+        response:
+        stix_bundle: 
+    Raises:
+        404: The requested collection was not found
+        ValueError: Data provided was not a STIX2 bundle
+        400: Invalid STIX bundle OR STIX to MISP conversion has failed
+    
+    Returns:
+        {"success": True, "event": result['Event']}: Signifies the endpoint was successful.
+    """    
+
     #  extract headers from initial request
     headers = dict(request.headers)
     
