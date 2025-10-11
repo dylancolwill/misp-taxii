@@ -3,8 +3,7 @@ import pprint
 import creds
 
 
-url = "http://127.0.0.1:8000/taxii2/api1/collections/d6ed313e-533a-55a6-aa06-4c00bc132812/objects/identity--7f4e0b2a-1f7b-41f4-9e76-a18fa1ce86e8"
-auth="w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K"
+url = "http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/objects/report--59e9ec59-a888-48e4-afb4-441602de0b81"
 
 headers = {
             "Authorization": creds.get_creds(),
