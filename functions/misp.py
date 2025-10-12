@@ -60,8 +60,9 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     #set headers to lower case
     headers = {k.lower(): v for k, v in headers.items()}
     
+    # checks before processing
     headers_verify(headers=headers)
-    
+        
     # get api from header
     misp_api_key = headers.get('authorization')
     
