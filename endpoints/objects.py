@@ -5,7 +5,9 @@ from misp_stix_converter import MISPtoSTIX21Parser, InternalSTIX2toMISPParser
 import functions.conversion  as conversion
 import endpoints.collections as collections
 import stix2
-from datetime import datetime
+from datetime import datetime, timezone
+import uuid
+from .root import get_content_size
 # import json
 # import creds
 
@@ -28,7 +30,6 @@ def check_unknown_filters(allowed_filters, request):
             detail=f"Unknown filter(s): {', '.join(unknown_filters)}"
         )
 
-        
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/versions/', tags=['Objects'])
 async def get_object_versions(
     collection_uuid: str,
@@ -65,7 +66,7 @@ async def get_object_versions(
         tags = misp_response.get('Tag')  #returns a list of tag dicts
     except requests.exceptions.HTTPError as e:
         if e.status_code==403:
-            raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
+            raise HTTPException(status_code=403, detail='The client does not have access to this object resource')
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
@@ -168,7 +169,7 @@ async def get_objects(
         tags = misp_response.get('Tag')  #returns a list of tag dicts
     except requests.exceptions.HTTPError as e:
         if e.status_code==403:
-            raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
+            raise HTTPException(status_code=403, detail='The client does not have access to this object resource')
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
@@ -295,7 +296,7 @@ async def get_object(
         tags = misp_response.get('Tag')  #returns a list of tag dicts
     except requests.exceptions.HTTPError as e:
         if e.status_code==403:
-            raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
+            raise HTTPException(status_code=403, detail='The client does not have access to this object resource')
     if not tag:
         raise HTTPException(status_code=404, detail='Collection ID not found')
     
@@ -354,15 +355,25 @@ async def get_object(
 @router.post("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
 async def add_objects(
     collection_uuid: str,
+    api_root: str,
     request: Request = None,
     response: Response = None,
     stix_bundle: dict = Body(...)
     ):
     #  extract headers from initial request
     headers = dict(request.headers)
+    print(headers)
     
-    print( misp.get_user_perms(headers=headers)) #check user perms, will raise 403 if no write access
+    # checks before processing
     
+    _, perm_add =misp.get_user_perms(headers=headers) #check user perms
+    if not perm_add:
+        raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
+    if headers.get('content-type') != 'application/taxii+json;version=2.1':
+        raise HTTPException(status_code=415, detail='The client attempted to POST a payload with a content type the server does not support') 
+    if int(headers.get('content-length', 0)) > get_content_size(api_root):
+        raise HTTPException(status_code=413, detail='The POSTed payload exceeds the max_content_length of the API Root')
+
     # convert collection uuid to misp id
     misp_response = misp.query_misp_api('/tags/index', headers=headers)
     tags = misp_response.get('Tag', [])
@@ -397,11 +408,11 @@ async def add_objects(
         
     # print(parser.misp_events)
     
-    event = parser.misp_events
-    print("Event info:", event.info)
-    print("Number of attributes:", len(event.attributes))
-    for attr in event.attributes:
-        print(attr.type, attr.value)
+    # event = parser.misp_events
+    # print("Event info:", event.info)
+    # print("Number of attributes:", len(event.attributes))
+    # for attr in event.attributes:
+    #     print(attr.type, attr.value)
 
 
     # push event to misp
@@ -411,47 +422,55 @@ async def add_objects(
     # ensure event_json is a dict, not string
     if isinstance(event_json, str):
         event_json = json.loads(event_json)
+    # pack inside Event if not already
+    if 'Event' not in event_json:
+        event_json = {'Event': event_json}
         
-        
-    if "Event" not in event_json:
-        event_json = {"Event": event_json}
-    
-    
-    # for e in parser.misp_events:
-    #     print("MISP Event:", e.info)
-    #     print("Attributes:", e.attributes)
-    
-
-    print("\n--- MISP EVENT PAYLOAD TYPE ---", type(event_json))
-    try:
-        print(json.dumps(event_json, indent=2)[:1000])
-    except Exception:
-        print(str(event_json)[:1000])
-        
-        
-        
-        
-#     event_json= {
-#     "Event": {
-#         "info": "Test event",
-#         "date": "2025-10-09"
-#     }
-# }
-   
-
+    # get all object ids from incoming bundle
+    object_ids = [obj['id'] for obj in bundle.objects if isinstance(obj, dict) and 'id' in obj]
+       
     try:
         result = misp.query_misp_api('/events/add', method='POST', headers=headers, data=event_json)
-        print(result)
-    except requests.exceptions.HTTPError as e:
-        status = e.response.status_code
-        if status==403: raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
 
-    try:
-        if 'Event' not in result:
-            raise HTTPException(status_code=500, detail='failed to add event to misp')
+        # taxii fields for successful upload
+        success_count =len(object_ids)
+        successes =[{'id': oid} for oid in object_ids] #list of successful object ids
+        failure_count = 0
+        pending_count =0
+        status ='complete'
     except requests.exceptions.HTTPError as e:
-        raise HTTPException(status_code=403, detail=f'Possible duplicate object') #NOT SURE IF WE CAN STRAY FROM TAXII RESPONSES
-
+        print(e)
+        if e.response.status_code==403: raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
+        
+        #cannot add objects with same uuid, throws errors with different origins and codes
+        if e.response.status_code ==404: raise HTTPException(status_code=400, detail='Atempted to add object with the same UUID as another object already in MISP')
+        
+        # taxii fields for failed upload
+        status = 'pending'
+        success_count =0
+        successes =[]
+        failure_count =len(object_ids)
+        pending_count =0
+        
+        result = {}
+        
+    # try:
+    #     if 'Event' not in result:
+    #         raise HTTPException(status_code=400, detail='failed to add event to misp')
+    # except requests.exceptions.HTTPError as e:
+    #     if e.status_code==403: #cannot add objects with same uuid, throws errors with different origins and codes
+    #         raise HTTPException(status_code=400, detail='Duplicate objects')
 
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
-    return {"success": True, "event": result['Event']}
+    response.status_code = 202 #successful upload code
+    
+    return {
+        'id': str(uuid.uuid4()),
+        'status': status,
+        'request_timestamp': datetime.now(timezone.utc).isoformat(timespec ='milliseconds'),
+        'total_count': len(object_ids),
+        'success_count': success_count,
+        'successes': successes,
+        'failure_count': failure_count,
+        'pending_count': pending_count
+    }
