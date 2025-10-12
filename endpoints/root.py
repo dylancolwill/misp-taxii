@@ -20,6 +20,15 @@ def list_roots():
     for discovery endpoint
     """
     return list(api_roots_info.keys())
+
+def get_content_size(api_root: str) -> int:
+    """
+    returns the max content length for a given api root
+    """
+    if api_root in api_roots_info:
+        return api_roots_info[api_root]['max_content_length']
+    else:
+        raise HTTPException(status_code=404, detail='API Root not found')
     
 @router.get('/taxii2/{api_root}/', tags=['API Root'])
 async def get_api_root(api_root: str):
