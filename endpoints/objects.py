@@ -60,14 +60,18 @@ async def get_object_versions(
     
     # query misp for all tags using headers
     print('getting all misp tags...')
-    misp_response = misp.query_misp_api('/tags/index', headers=headers)
-    tags = misp_response.get('Tag')  #returns a list of tag dicts
+    try:
+        misp_response = misp.query_misp_api('/tags/index', headers=headers)
+        tags = misp_response.get('Tag')  #returns a list of tag dicts
+    except requests.exceptions.HTTPError as e:
+        if e.status_code==403:
+            raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
-        raise HTTPException(status_code=404, detail='Collection not found')
+        raise HTTPException(status_code=404, detail='Collection ID not found')
     collection_name = tag['name'] #used to fetch matching events
     # print(collection_name)
     
@@ -101,7 +105,7 @@ async def get_object_versions(
                 versions.append(timestamp)
 
     if not versions:
-        raise HTTPException(status_code=404, detail='Object not found')
+        raise HTTPException(status_code=404, detail='Object ID not found')
 
     # sort chronologically
     versions.sort()
@@ -170,7 +174,7 @@ async def get_objects(
     print('comparing each tag id to user inputted uuid...')
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
-        raise HTTPException(status_code=404, detail='Collection not found')
+        raise HTTPException(status_code=404, detail='Collection ID not found')
     collection_name = tag['name'] #used to fetch matching events
     
     # setup payload to use in misp request
@@ -293,13 +297,13 @@ async def get_object(
         if e.status_code==403:
             raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
     if not tag:
-        raise HTTPException(status_code=404, detail='Collection not found')
+        raise HTTPException(status_code=404, detail='Collection ID not found')
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
-        raise HTTPException(status_code=404, detail='Collection not found')
+        raise HTTPException(status_code=404, detail='Collection ID not found')
     collection_name = tag['name'] #used to fetch matching events
     # print(collection_name)
     
@@ -338,7 +342,7 @@ async def get_object(
 
     # if object not found raise
     if requestedObject is None:
-        raise HTTPException(status_code=404, detail=f'The API Root, Collection ID and/or Object ID are not found, or the client does not have access to the object resource')
+        raise HTTPException(status_code=404, detail=f'Object ID not found')
 
     # include taxii headers per specs
     response.headers['X-TAXII-Date-Added-First'] = getattr(requestedObject, 'created', None).isoformat()
@@ -364,7 +368,7 @@ async def add_objects(
     tags = misp_response.get('Tag', [])
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
-        raise HTTPException(status_code=404, detail='Collection not found')
+        raise HTTPException(status_code=404, detail='Collection ID not found')
     collection_name = tag['name']
     
     # convert dict to stix bundle if needed
