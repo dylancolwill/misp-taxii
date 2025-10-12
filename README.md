@@ -40,12 +40,13 @@ python main.py
 - [x] verify user passes api key
 - [x] include filtering
   - [x] test filtering
-  - [ ] test filtering checks
+  - [x] test filtering checks
 - [x] map misp events to stix object type to include in uuid for taxii objects
 - [x] make use of api roots
 - [ ] remove testing and development code blocks
   - [ ] change print statements to debug log
-- [ ] ensure correct response headers
+- [x] ensure correct response headers
 - [ ] ~~include ability to return taxii and stix~~
 - [ ] ability to view headers in demo
-- [ ] failure responses
+- [x] failure responses
+  - [ ] test all responses
