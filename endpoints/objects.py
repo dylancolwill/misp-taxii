@@ -159,8 +159,12 @@ async def get_objects(
     
     # query misp for all tags using headers
     print('getting all misp tags...')
-    misp_response = misp.query_misp_api('/tags/index', headers=headers)
-    tags = misp_response.get('Tag')  #returns a list of tag dicts
+    try:
+        misp_response = misp.query_misp_api('/tags/index', headers=headers)
+        tags = misp_response.get('Tag')  #returns a list of tag dicts
+    except requests.exceptions.HTTPError as e:
+        if e.status_code==403:
+            raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
