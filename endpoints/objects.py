@@ -244,7 +244,7 @@ async def get_objects(
             objects = objects[:limit]
 
     print("passed final")
-    print(objects) 
+    # print(objects) 
 
     print('complete')
     
@@ -362,7 +362,7 @@ async def add_objects(
     ):
     #  extract headers from initial request
     headers = dict(request.headers)
-    print(headers)
+    # print(headers)
     
     # checks before processing
     
@@ -439,7 +439,7 @@ async def add_objects(
         pending_count =0
         status ='complete'
     except requests.exceptions.HTTPError as e:
-        print(e)
+        # print(e)
         if e.response.status_code==403: raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
         
         #cannot add objects with same uuid, throws errors with different origins and codes
@@ -454,12 +454,12 @@ async def add_objects(
         
         result = {}
         
-    # try:
-    #     if 'Event' not in result:
-    #         raise HTTPException(status_code=400, detail='failed to add event to misp')
-    # except requests.exceptions.HTTPError as e:
-    #     if e.status_code==403: #cannot add objects with same uuid, throws errors with different origins and codes
-    #         raise HTTPException(status_code=400, detail='Duplicate objects')
+    try:
+        if 'Event' not in result:
+            raise HTTPException(status_code=400, detail='Failed to add event to MISP, unknown error')
+    except requests.exceptions.HTTPError as e:
+        if e.status_code==403: #cannot add objects with same uuid, throws errors with different origins and codes
+            raise HTTPException(status_code=400, detail='Duplicate objects')
 
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
     response.status_code = 202 #successful upload code
