@@ -20,13 +20,17 @@ To install all the necessary libraries for this project
 pip install -r requirements.txt
 ```
 
-## Running
+## Usage
 To start the server, run `main.py`
 ```
 python main.py
 ```
 
-## Usage
+By default, the server is run on localhost port 8000
+Start by sending a request to the discovery endpoint with required headers
+```
+
+```
 
 ## To Do
 - [x] function in misp.py to check user perms, will need for can_write and can_read collections
@@ -49,3 +53,4 @@ python main.py
 - [ ] ~~include ability to return taxii and stix~~
 - [ ] ability to view headers in demo
 - [ ] failure responses
+- [ ] finish install and usage instructions
