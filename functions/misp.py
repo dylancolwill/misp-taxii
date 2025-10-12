@@ -26,8 +26,9 @@ def get_user_perms(headers=None):
     
     response = query_misp_api('/users/view/me', headers=headers)
     perm_modify = response['Role']['perm_modify']
+    perm_add = response['Role']['perm_add']
     
-    return perm_modify
+    return perm_modify, perm_add
 
 def get_headers(request: Request):
     api_key = request.headers.get('Authorization') 
@@ -41,15 +42,12 @@ def headers_verify(headers):
     if headers is None :
         raise HTTPException(status_code=400, detail='Missing required header')
     
-    #set headers to lower case
-    headers = {k.lower(): v for k, v in headers.items()}
-    
     if 'authorization' not in headers:
-        raise HTTPException(status_code=401, detail='Missing authorization key in header')
+        raise HTTPException(status_code=401, detail='The client needs to authenticate')
     if 'accept' not in headers:
-        raise HTTPException(status_code=400, detail='Missing TAXII accept header')
+        raise HTTPException(status_code=406, detail='Missing TAXII accept header')
     elif headers['accept'] != 'application/taxii+json;version=2.1':
-        raise HTTPException(status_code=400, detail='Invalid accept header')
+        raise HTTPException(status_code=406, detail='The media type provided in the Accept header is invalid')
     print('header verification complete')
     
 
@@ -58,6 +56,9 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     function to call misp api dynamically
     allows other modules to query without duplicating logic
     """
+    
+    #set headers to lower case
+    headers = {k.lower(): v for k, v in headers.items()}
     
     headers_verify(headers=headers)
     
@@ -68,7 +69,7 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     misp_headers =  {'Authorization': misp_api_key,
             'Accept': 'application/json',
             'Content-Type': 'application/json'}
-
+    
     url = f'{misp_ip}{endpoint}'
 
     try:
@@ -81,12 +82,12 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
         elif method.upper() == 'DELETE':
             response = requests.delete(url, headers=misp_headers, verify=False)
         else:
-            raise ValueError(f'Unsupported HTTP method: {method}')
+            raise ValueError(f'unsupported http {method}')
     except Exception as e:
-        raise RuntimeError(f'Error calling MISP {endpoint}: {e}')
+        raise HTTPException(status_code=400, detail='The server did not understand the request')
 
     # raise http errors
     response.raise_for_status()
-    print('misp.py')
-    print(response)
+    # print('misp.py')
+    # print(response)
     return response.json()
