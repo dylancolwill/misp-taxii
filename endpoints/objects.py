@@ -235,7 +235,7 @@ async def get_objects(
             objects = objects[:limit]
 
     print("passed final")
-    print(objects)
+    print(objects) 
 
     print('complete')
     
@@ -282,8 +282,12 @@ async def get_object(
     
     # query misp for all tags using headers
     print('getting all misp tags...')
-    misp_response = misp.query_misp_api('/tags/index', headers=headers)
-    tags = misp_response.get('Tag')  #returns a list of tag dicts
+    try:
+        misp_response = misp.query_misp_api('/tags/index', headers=headers)
+        tags = misp_response.get('Tag')  #returns a list of tag dicts
+    except requests.exceptions.HTTPError as e:
+        if e.status_code==403:
+            raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
@@ -301,8 +305,12 @@ async def get_object(
     }
     
     # query misp for events matching this collection using restSearch
-    misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
-    events = misp_response.get('response', [])
+    try:
+        misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
+        events = misp_response.get('response', [])
+    except requests.exceptions.HTTPError as e:
+        if e.status_code==403:
+            raise HTTPException(status_code=403, detail='The client does not have access to this object resource')
     
     # convert events into stix bundles 
     stix_objects = []
@@ -324,7 +332,7 @@ async def get_object(
 
     # if object not found raise
     if requestedObject is None:
-        raise HTTPException(status_code=404, detail=f'Object not found')
+        raise HTTPException(status_code=404, detail=f'The API Root, Collection ID and/or Object ID are not found, or the client does not have access to the object resource')
 
     # include taxii headers per specs
     response.headers['X-TAXII-Date-Added-First'] = getattr(requestedObject, 'created', None).isoformat()
