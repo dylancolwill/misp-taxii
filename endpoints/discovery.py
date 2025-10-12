@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from .root import list_roots
+import functions.misp as misp
 
 router = APIRouter()
 
@@ -13,8 +14,14 @@ discovery_info= {
 
 # MAY NEED TO AUTH BEFORE?
 @router.get('/taxii2/', tags=['Discovery'])
-async def get_discovery():
+async def get_discovery(request:Request =None, ):
     """
     provides metadata about the taxii server
     """
+    # authenticate
+    try:
+        misp.get_user_perms(headers=dict(request.headers))
+    except HTTPException as e:
+        raise HTTPException(status_code=403, detail='The client does not have access to this resource')
+    
     return discovery_info
