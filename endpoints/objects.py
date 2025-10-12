@@ -288,6 +288,8 @@ async def get_object(
     except requests.exceptions.HTTPError as e:
         if e.status_code==403:
             raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
+    if not tag:
+        raise HTTPException(status_code=404, detail='Collection not found')
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
