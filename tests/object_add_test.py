@@ -1,6 +1,7 @@
 import requests
 import pprint
 import creds
+import uuid
 
 url = "http://127.0.0.1:8000/taxii2/api1/collections/f37b15ee-07ba-583f-bf65-03e4fd5e9d96/objects/"
 headers = {
@@ -9,14 +10,19 @@ headers = {
     "Content-Type": "application/taxii+json;version=2.1"
 }
 
+identity_uuid = str(uuid.uuid4())
+grouping_uuid = str(uuid.uuid4())
+indicator_uuid = str(uuid.uuid4())
+bundle_uuid = str(uuid.uuid4())
+
 stix_bundle = {
     "type": "bundle",
-    "id": "bundle--" + "6b3f5a9c-7c12-4e8d-bf92-2d3f5b1f9a2e",
+    "id": f"bundle--{bundle_uuid}",
     "objects": [
         {
             "type": "identity",
             "spec_version": "2.1",
-            "id": "identity--" + "f8c4e8b1-1d3a-4a5b-a67d-9f2c8b2d3e1f",
+            "id": f"identity--{identity_uuid}",
             "created": "2025-10-10T00:00:00.000Z",
             "modified": "2025-10-10T00:00:00.000Z",
             "name": "MISP-Project",
@@ -25,20 +31,20 @@ stix_bundle = {
         {
             "type": "grouping",
             "spec_version": "2.1",
-            "id": "grouping--" + "d7e9c1f4-4a9b-4e77-8f5a-2b3c9d8e7f1a",
-            "created_by_ref": "identity--f8c4e8b1-1d3a-4a5b-a67d-9f2c8b2d3e1f",
+            "id": f"grouping--{grouping_uuid}",
+            "created_by_ref": f"identity--{identity_uuid}",
             "created": "2025-10-10T00:00:00.000Z",
             "modified": "2025-10-10T00:00:00.000Z",
             "name": "MISP-STIX-Converter test event",
             "context": "suspicious-activity",
-            "object_refs": ["indicator--a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d"],
+            "object_refs": [f"indicator--{indicator_uuid}"],
             "labels": ["Threat-Report", 'misp:tool="MISP-STIX-Converter"'],
         },
         {
             "type": "indicator",
             "spec_version": "2.1",
-            "id": "indicator--" + "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
-            "created_by_ref": "identity--f8c4e8b1-1d3a-4a5b-a67d-9f2c8b2d3e1f",
+            "id": f"indicator--{indicator_uuid}",
+            "created_by_ref": f"identity--{identity_uuid}",
             "created": "2025-10-10T00:00:00.000Z",
             "modified": "2025-10-10T00:00:00.000Z",
             "pattern": "[autonomous-system:number = '174']",
