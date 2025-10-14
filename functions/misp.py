@@ -84,11 +84,16 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
             response = requests.delete(url, headers=misp_headers, verify=False)
         else:
             raise ValueError(f'unsupported http {method}')
+        response.raise_for_status()
     except Exception as e:
-        raise HTTPException(status_code=400, detail='The server did not understand the request')
+        print(e)
+        if e.response is not None and e.response.status_code == 403:
+            raise HTTPException(status_code=403, detail='The client does not have access to this resource')
+        else:
+            raise HTTPException(status_code=400, detail='The server did not understand the request')
 
     # raise http errors
-    response.raise_for_status()
+    
     # print('misp.py')
     # print(response)
     return response.json()

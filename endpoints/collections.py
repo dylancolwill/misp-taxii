@@ -62,7 +62,7 @@ def get_misp_collection(collection_uuid: str, request: Request, response: Respon
         misp_response = misp.query_misp_api('/tags/index', headers=headers)
         tags = misp_response.get('Tag')  #returns a list of tag dicts
     except requests.exceptions.HTTPError as e:
-        if e.status_code==403:
+        if e.response is not None and e.response.status_code == 403:
             raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
 
     # determine user permissions from misp
