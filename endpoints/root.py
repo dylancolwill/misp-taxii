@@ -1,5 +1,6 @@
 # app/endpoints/api_root.py
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+import functions.misp as misp
 
 router = APIRouter()
 
@@ -31,12 +32,18 @@ def get_content_size(api_root: str) -> int:
         raise HTTPException(status_code=404, detail='API Root not found')
     
 @router.get('/taxii2/{api_root}/', tags=['API Root'])
-async def get_api_root(api_root: str):
+async def get_api_root(api_root: str, request:Request =None):
     """
     return information about a specific api root
     """
+    # authenticate
+    try:
+        misp.get_user_perms(headers=dict(request.headers))
+    except HTTPException as e:
+        raise HTTPException(status_code=403, detail='The client does not have access to this resource')    
+    
     # check if api root exists in dict
     if api_root not in api_roots_info:
-        raise HTTPException(status_code=404, detail='API Root not found')
+        raise HTTPException(status_code=404, detail='The API Root is not found')
 
     return api_roots_info[api_root]
