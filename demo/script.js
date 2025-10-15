@@ -1,3 +1,10 @@
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 function getHeaders() {
     return {
         "Authorization": "w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K",
@@ -18,6 +25,16 @@ function send_request(customUrl, method = "GET", data = null) {
         return;
     }
 
+    let requestData = data;
+    if (!requestData && $("#requestData").val().trim()) {
+        try {
+            requestData = JSON.parse($("#requestData").val());
+        } catch (e) {
+            $("#outputSpace").html("<pre>invalid request</pre>");
+            return;
+        }
+    }
+
     $("#outputSpace").html("loading...");
     if (!url) {
         $("#outputSpace").html("<pre>url empty</pre>");
@@ -27,7 +44,7 @@ function send_request(customUrl, method = "GET", data = null) {
         url: url,
         method: method,
         headers: headers,
-        data: data ? JSON.stringify(data) : undefined,
+        data: requestData ? JSON.stringify(requestData) : undefined,
         contentType: headers["Content-Type"],
         success: function (data) {
             $("#outputSpace").html("<pre>" + JSON.stringify(data, null, 2) + "</pre>");
@@ -39,7 +56,8 @@ function send_request(customUrl, method = "GET", data = null) {
 }
 
 $("#sendRequest").click(function () {
-    send_request();
+    const method = $("#requestData").val().trim() ? "POST" : "GET";
+    send_request(undefined, method);
 });
 
 $("#btnDiscovery").click(function() {
@@ -80,8 +98,63 @@ $("#btnGetObj").click(function() {
 
 $("#btnAddObj").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/api1/collections/f37b15ee-07ba-583f-bf65-03e4fd5e9d96/objects/";
+    
+    const identity_uuid = generateUUID();
+    const grouping_uuid = generateUUID();
+    const indicator_uuid = generateUUID();
+    const bundle_uuid = generateUUID();
+
+    const stix_bundle = {
+        "type": "bundle",
+        "id": `bundle--${bundle_uuid}`,
+        "objects": [
+            {
+                "type": "identity",
+                "spec_version": "2.1",
+                "id": `identity--${identity_uuid}`,
+                "created": "2025-10-10T00:00:00.000Z",
+                "modified": "2025-10-10T00:00:00.000Z",
+                "name": "MISP-Project",
+                "identity_class": "organization"
+            },
+            {
+                "type": "grouping",
+                "spec_version": "2.1",
+                "id": `grouping--${grouping_uuid}`,
+                "created_by_ref": `identity--${identity_uuid}`,
+                "created": "2025-10-10T00:00:00.000Z",
+                "modified": "2025-10-10T00:00:00.000Z",
+                "name": "MISP-STIX-Converter test event",
+                "context": "suspicious-activity",
+                "object_refs": [`indicator--${indicator_uuid}`],
+                "labels": ["Threat-Report", 'misp:tool="MISP-STIX-Converter"']
+            },
+            {
+                "type": "indicator",
+                "spec_version": "2.1",
+                "id": `indicator--${indicator_uuid}`,
+                "created_by_ref": `identity--${identity_uuid}`,
+                "created": "2025-10-10T00:00:00.000Z",
+                "modified": "2025-10-10T00:00:00.000Z",
+                "pattern": "[autonomous-system:number = '174']",
+                "pattern_type": "stix",
+                "pattern_version": "2.1",
+                "valid_from": "2025-10-10T00:00:00Z",
+                "kill_chain_phases": [
+                    {"kill_chain_name": "misp-category", "phase_name": "Network activity"}
+                ],
+                "labels": [
+                    'misp:type="AS"',
+                    'misp:category="Network activity"',
+                    'misp:to_ids="True"'
+                ]
+            }
+        ]
+    };
+
     $("#requestUrl").val(url);
-    send_request(url);
+    $("#requestData").val(JSON.stringify(stix_bundle, null, 2));
+    send_request(url, "POST", stix_bundle);
 });
 
 $("#btnManifests").click(function() {
