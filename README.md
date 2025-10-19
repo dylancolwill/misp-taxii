@@ -51,7 +51,8 @@ Start by sending a request to the discovery endpoint with required headers
   - [ ] change print statements to debug log
 - [x] ensure correct response headers
 - [ ] ~~include ability to return taxii and stix~~
-- [ ] ability to view headers in demo
+- [x] ability to view headers in demo
 - [x] failure responses
   - [ ] test all responses
 - [ ] finish install and usage instructions
+- [ ] include spec_version
