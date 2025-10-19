@@ -270,6 +270,8 @@ async def get_object(
     added_after: str = Query(None, alias='added_after'),
     limit: int = Query(None, alias='limit'),
     next_token: str = Query(None, alias='next'), #taxii next
+    version: str = Query(None, alias='match[version]'),
+    spec_version: str = Query(None, alias='match[spec_version]'),
     request: Request = None,
     response: Response = None
 ):
@@ -277,7 +279,7 @@ async def get_object(
     returns all versions of an object, given collection and object uuid
     since taxii requires uuid but misp uses id, need to fetch all tags and filter in code, cannot query for id
     """
-    check_unknown_filters({'added_after', 'limit', 'next'}, request)
+    check_unknown_filters({'added_after', 'limit', 'next', 'match[version]', 'match[spec_version]'}, request)
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
     if added_after is not None:
@@ -297,8 +299,6 @@ async def get_object(
     except requests.exceptions.HTTPError as e:
         if e.status_code==403:
             raise HTTPException(status_code=403, detail='The client does not have access to this object resource')
-    if not tag:
-        raise HTTPException(status_code=404, detail='Collection ID not found')
     
     # find matching tag, need to convert each collection id to uuid
     print('comparing each tag id to user inputted uuid...')
@@ -306,7 +306,6 @@ async def get_object(
     if not tag:
         raise HTTPException(status_code=404, detail='Collection ID not found')
     collection_name = tag['name'] #used to fetch matching events
-    # print(collection_name)
     
     # setup payload to use in misp request
     print('getting related misp events...')
@@ -314,6 +313,12 @@ async def get_object(
         'tags': collection_name,
         'returnFormat': 'json'
     }
+    
+    # apply filters where possible
+    if added_after:
+        payload['date_from'] = added_after
+    if next_token:
+        payload['page'] = int(next_token) 
     
     # query misp for events matching this collection using restSearch
     try:
@@ -331,7 +336,31 @@ async def get_object(
             stix_objects.extend(bundle.get('objects', []))
         else:
             stix_objects.extend(bundle.objects)
-    print("Passed STIX Conversion")    
+    print("Passed STIX Conversion")   
+    
+    # custom filters not included in misp
+    # need to do after repackaging to not damage bundle
+    # if a filter is not set, will be ignored. 
+    filtered_objects = [
+        obj for obj in stix_objects
+        if getattr(obj, 'id', obj.get('id', None)) == object_uuid
+        and (not version or getattr(obj, 'version', obj.get('version', None)) == version)
+        and (not spec_version or getattr(obj, 'spec_version', obj.get('spec_version', None)) == spec_version)
+        and (not added_after or getattr(obj, 'created', obj.get('created', None)) >= added_after)
+        #for each object, checks the if condition, if true is included in new list, if false skips
+        # if no filters are applied, every condition is true, all are included in list
+    ]
+      
+    # pagination
+    more = False
+    next_value = None
+    total_objects = len(filtered_objects)
+    start = int(next_token or 0)
+    end = start + limit if limit is not None else total_objects
+    paged_objects = filtered_objects[start:end]
+    if limit is not None and total_objects > end:
+        more = True
+        next_value = str(end)
            
     # collect all versions of requested stix
     requestedObject=None
@@ -345,12 +374,25 @@ async def get_object(
     if requestedObject is None:
         raise HTTPException(status_code=404, detail=f'Object ID not found')
 
-    # include taxii headers per specs
-    response.headers['X-TAXII-Date-Added-First'] = getattr(requestedObject, 'created', None).isoformat()
-    response.headers['X-TAXII-Date-Added-Last'] = getattr(requestedObject, 'modified', None).isoformat()
+    # return headers based on returned objects
+    # indicate earlist and latest created/modified dates
+    if paged_objects:
+        created_list = [getattr(obj, 'created', obj.get('created', None)) for obj in paged_objects if getattr(obj, 'created', obj.get('created', None))]
+        modified_list = [getattr(obj, 'modified', obj.get('modified', None)) for obj in paged_objects if getattr(obj, 'modified', obj.get('modified', None))]
+        if created_list:
+            response.headers['X-TAXII-Date-Added-First'] = min(created_list).isoformat() if hasattr(min(created_list), 'isoformat') else str(min(created_list))
+        if modified_list:
+            response.headers['X-TAXII-Date-Added-Last'] = max(modified_list).isoformat() if hasattr(max(modified_list), 'isoformat') else str(max(modified_list))
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
-    
-    return {'objects':[requestedObject]}  
+
+    # build taxii envelope
+    result = {'objects': paged_objects}
+    if limit is not None:
+        result['more'] = more
+        if more:
+            result['next'] = next_value
+
+    return result
 
 @router.post("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
 async def add_objects(
