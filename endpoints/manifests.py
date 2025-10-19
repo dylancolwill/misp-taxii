@@ -6,7 +6,7 @@ import requests
 router = APIRouter()
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/manifests', tags=['Manifests'])
-def get_misp_manifests(collection_uuid: str,
+def get_manifests(collection_uuid: str,
     added_after: str = Query(None, alias='added_after'),
     limit: int = Query(None, alias='limit'),
     next_token: str = Query(None, alias='next'), #taxii next
@@ -82,9 +82,14 @@ def get_misp_manifests(collection_uuid: str,
     for bundle in objects:  # each item is a stix bundle
         for obj in bundle.objects:
             if obj.type != 'identity': #identity not needed 
+                print('date added:', getattr(obj, 'created', None))
+                print(obj)
+                date_added =getattr(obj, 'created', None)
+                if (date_added ==None):
+                    continue  #skip objects without created date, per spec
                 manifests.append({
                     'id': obj.id,
-                    'date_added': obj.created ,
+                    'date_added': date_added,
                     'version': getattr(obj, 'modified', obj.created),  # use modified if exists, else created
                     'media_type': 'application/stix+json;version=2.1'
                 })
