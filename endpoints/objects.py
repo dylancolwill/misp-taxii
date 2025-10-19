@@ -149,12 +149,13 @@ async def get_objects(
     request: Request = None,
     response: Response = None
 ):
+    # validate filters
     check_unknown_filters({'added_after', 'limit', 'next', 'match[id]', 'match[type]', 'match[version]', 'match[spec_version]'}, request)
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
     if added_after is not None:
         try:
-            datetime.fromisoformat(added_after)
+            added_after =datetime.fromisoformat(added_after)
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
     
@@ -206,9 +207,11 @@ async def get_objects(
         
         # unwrap stix objects from bundle and add to list for return
         if isinstance(stixObject, dict):
-            objects.extend(stixObject.get('objects', []))
+            _objects = stixObject.get('objects', [])
         else:
-            objects.extend(stixObject.objects)
+            _objects = stixObject.objects
+        # extend the list with only the newly unwrapped objects 
+        objects.extend(_objects)
             
         # collect created and modified timestamps for return header
         for obj in objects:
@@ -284,7 +287,7 @@ async def get_object(
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
     if added_after is not None:
         try:
-            datetime.fromisoformat(added_after)
+            added_after=datetime.fromisoformat(added_after)
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
     
@@ -295,7 +298,7 @@ async def get_object(
     print('getting all misp tags...')
     try:
         misp_response = misp.query_misp_api('/tags/index', headers=headers)
-        tags = misp_response.get('Tag')  #returns a list of tag dicts
+        tags = misp_response.get('Tag',[])  #returns a list of tag dicts
     except requests.exceptions.HTTPError as e:
         if e.status_code==403:
             raise HTTPException(status_code=403, detail='The client does not have access to this object resource')
