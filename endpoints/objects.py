@@ -49,13 +49,15 @@ def fetch_collection_tag(collection_uuid, misp, conversion, headers):
     logger.info(f'Found collection name: {tag["name"]} for UUID: {collection_uuid}')
     return tag['name']
 
-def fetch_events(collection_name, misp, headers, added_after=None, next_token=None):
+def fetch_events(collection_name, misp, headers, added_after=None, next_token=None, limit =None):
     logger.debug(f'Fetching events for collection: {collection_name}')
     payload = {'tags': collection_name, 'returnFormat': 'json'}
     if added_after:
         payload['date_from'] = added_after #taxii added_after maps to misp date_from
     if next_token:
         payload['page'] = int(next_token) #next_token used as taxii page number
+    if limit:
+        payload['limit'] = int(limit)
     # send request to misp with additional search parameters
     response = misp.query_misp_api('/events/restSearch', method='POST', headers=headers, data=payload)
     logger.info(f'Fetched {len(response.get("response", []))} events from MISP for collection: {collection_name}')
@@ -145,7 +147,7 @@ async def get_object_versions(
     # translate collection uuid to misp tag name
     collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers) 
     # get all misp events under tag name
-    events = fetch_events(collection_name, misp, headers, added_after, next_token)
+    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit)
     # convert events to stix objects
     stix_objects = convert_events_to_stix(events, conversion)
     
@@ -213,7 +215,7 @@ async def get_objects(
     # translate collection uuid to misp tag name
     collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers) 
     # get all misp events under tag name
-    events = fetch_events(collection_name, misp, headers, added_after, next_token)
+    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit)
     # convert events to stix objects
     stix_objects = convert_events_to_stix(events, conversion)
     
@@ -245,7 +247,7 @@ async def get_object(
     added_after: str = Query(None, alias='added_after'),
     limit: int = Query(None, alias='limit'),
     next_token: str = Query(None, alias='next'),
-    object_type: str = Query(None, alias='match[type]'),
+    # object_type: str = Query(None, alias='match[type]'),
     version: str = Query(None, alias='match[version]'),
     spec_version: str = Query(None, alias='match[spec_version]'),
     request: Request = None,
@@ -267,18 +269,18 @@ async def get_object(
     # translate collection uuid to misp tag name
     collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers) 
     # get all misp events under tag name
-    events = fetch_events(collection_name, misp, headers, added_after, next_token)
+    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit)
     # convert events to stix objects
     stix_objects = convert_events_to_stix(events, conversion)
     
     # apply filters
-    filtered = filter_stix_objects(stix_objects,object_id=object_uuid,object_type=object_type,version=version,spec_version=spec_version,added_after=added_after)
+    filtered = filter_stix_objects(stix_objects,object_id=object_uuid,object_type=None,version=version,spec_version=spec_version,added_after=added_after)
     # paginate filtered results
     paged, more, next_value = paginate(filtered, limit, next_token)
     
     # handle empty reponse
-    if not paged:
-        raise HTTPException(status_code=404, detail='Object ID not found')
+    # if not paged:
+    #     raise HTTPException(status_code=404, detail='Object ID not found')
         
     # set return headers as taxii spec
     created_list = [
