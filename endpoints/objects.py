@@ -56,7 +56,7 @@ def fetch_events(collection_name, misp, headers, added_after=None, next_token=No
         payload['date_from'] = added_after #taxii added_after maps to misp date_from
     if next_token:
         payload['page'] = int(next_token) #next_token used as taxii page number
-    if limit is not None:
+    if limit:
         payload['limit'] = int(limit)
     # send request to misp with additional search parameters
     response = misp.query_misp_api('/events/restSearch', method='POST', headers=headers, data=payload)
