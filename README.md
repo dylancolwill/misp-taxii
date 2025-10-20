@@ -21,7 +21,12 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-By default, the servr runs on localhost at port 8000. This can be configured inside `main.py`, see the [FasiAPI server deployment docs](https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program) or [running behind a proxy](https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/).
+By default, the server runs on localhost at port 8000. This can be configured inside `main.py`, see the [FasiAPI server deployment docs](https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program) or [running behind a proxy](https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/).
+
+
+MISP IP must be configured before starting the server, this can be set in `functions/misp.py`.
+
+
 To start the server, run `main.py`
 ```
 python main.py
@@ -56,4 +61,4 @@ Start by sending a request to the discovery endpoint with required headers
 - [x] failure responses
   - [ ] test all responses
 - [ ] finish install and usage instructions
-- [ ] include spec_version
+- [x] include spec_version
