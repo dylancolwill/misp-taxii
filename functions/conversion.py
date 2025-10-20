@@ -11,3 +11,9 @@ def misp_to_stix(event):
     parser21 = MISPtoSTIX21Parser()
     parser21.parse_misp_event(event)
     return parser21.bundle
+
+def datetime_to_iso(dt):
+    # convert datetime into iso
+    if hasattr(dt, 'isoformat'):
+        return dt.isoformat()
+    return str(dt)
