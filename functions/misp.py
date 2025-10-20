@@ -5,7 +5,7 @@ from fastapi import Request, HTTPException, Depends
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# REMOVE BEFORE PRODUCTION
+# SET YOUR MISP INSTANCE DETAILS HERE
 misp_ip='https://13.239.5.152'
 
 # DONT NEED, AUTH IN EVERY REQUEST INSTEAD
