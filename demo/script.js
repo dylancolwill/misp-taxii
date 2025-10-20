@@ -104,9 +104,7 @@ $("#btnAddObj").click(function() {
     const indicator_uuid = generateUUID();
     const bundle_uuid = generateUUID();
 
-    const stix_bundle = {
-        "type": "bundle",
-        "id": `bundle--${bundle_uuid}`,
+    const taxii_envelope = {
         "objects": [
             {
                 "type": "identity",
@@ -153,8 +151,8 @@ $("#btnAddObj").click(function() {
     };
 
     $("#requestUrl").val(url);
-    $("#requestData").val(JSON.stringify(stix_bundle, null, 2));
-    send_request(url, "POST", stix_bundle);
+    $("#requestData").val(JSON.stringify(taxii_envelope, null, 2));
+    send_request(url, "POST", taxii_envelope);
 });
 
 $("#btnManifests").click(function() {
