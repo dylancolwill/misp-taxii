@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import logging
 
 # import routers
 from endpoints.discovery import router as discovery_router
@@ -12,6 +13,12 @@ from endpoints.root import router as root_router
 # init fast api
 app = FastAPI(
     title="MISP TAXII Server",
+)
+
+# init logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s - %(message)s'
 )
 
 # cors
