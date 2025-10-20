@@ -32,11 +32,16 @@ To start the server, run `main.py`
 python main.py
 ```
 
-By default, the server is run on localhost port 8000
+
 Start by sending a request to the discovery endpoint with required headers
 ```
-
+curl -X GET "http://127.0.0.1:8000/taxii2/" \
+  -H "Authorization: <YOUR_API_KEY>" \
+  -H "Accept: application/taxii+json;version=2.1" \
+  -H "Content-Type: application/taxii+json;version=2.1"
 ```
+or check the `tests/discovery_test.py` for Python example.
+
 
 ## To Do
 - [x] function in misp.py to check user perms, will need for can_write and can_read collections
