@@ -333,6 +333,15 @@ async def add_objects(
     #     raise HTTPException(status_code=404, detail='Collection ID not found')
     # collection_name = tag['name']
     
+    # accept taxii envelope or stix bundle
+    # if envelope, wrap objects in a stix bundle for processing
+    if "objects" in stix_bundle and stix_bundle.get("type") != "bundle":
+        stix_bundle = {
+            "type": "bundle",
+            "id": f"bundle--{uuid.uuid4()}",
+            "objects": stix_bundle["objects"]
+        }
+    
     # convert dict to stix bundle if needed
     try:
         bundle = stix2.parse(stix_bundle, allow_custom=True)
