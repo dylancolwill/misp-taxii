@@ -8,6 +8,7 @@ import stix2
 from datetime import datetime, timezone
 import uuid
 from .root import get_content_size
+import logging
 # import json
 # import creds
 
@@ -16,8 +17,9 @@ from .root import get_content_size
 
 router = APIRouter()
 
-print("before router")
-#REGION utils
+logger = logging.getLogger(__name__)
+
+#region utils
 def check_unknown_filters(allowed_filters, request):
     # get query parameter keys from the request
     query_params = set(request.query_params.keys())
@@ -25,12 +27,14 @@ def check_unknown_filters(allowed_filters, request):
     # collect keys not allowed
     unknown_filters = [filter for filter in query_params if filter not in allowed_filters]
     if unknown_filters:
+        logger.warning(f'Unknown filters detected: {unknown_filters}')
         raise HTTPException(
             status_code=400,
-            detail=f"Unknown filter(s): {', '.join(unknown_filters)}"
+            detail=f'Unknown filter(s): {", ".join(unknown_filters)}'
         )
 
 def fetch_collection_tag(collection_uuid, misp, conversion, headers):
+    logger.debug(f'Fetching collection tag for UUID: {collection_uuid}')
     # get collection name from misp by matching passed uuid to tag id
     # misp tags are used to represent taxii collections
     
@@ -40,10 +44,13 @@ def fetch_collection_tag(collection_uuid, misp, conversion, headers):
     # find the tag name that matches the collection uuid after converting
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
+        logger.error(f'Collection UUID not found: {collection_uuid}')
         raise HTTPException(status_code=404, detail='Collection ID not found')
+    logger.info(f'Found collection name: {tag["name"]} for UUID: {collection_uuid}')
     return tag['name']
 
 def fetch_events(collection_name, misp, headers, added_after=None, next_token=None):
+    logger.debug(f'Fetching events for collection: {collection_name}')
     payload = {'tags': collection_name, 'returnFormat': 'json'}
     if added_after:
         payload['date_from'] = added_after #taxii added_after maps to misp date_from
@@ -51,11 +58,13 @@ def fetch_events(collection_name, misp, headers, added_after=None, next_token=No
         payload['page'] = int(next_token) #next_token used as taxii page number
     # send request to misp with additional search parameters
     response = misp.query_misp_api('/events/restSearch', method='POST', headers=headers, data=payload)
+    logger.info(f'Fetched {len(response.get("response", []))} events from MISP for collection: {collection_name}')
     return response.get('response', [])
 
 def convert_events_to_stix(events, conversion):
     # universal function to convert list of misp events to stix objects
     # need to normalise dict or bundle object into simple list of objects
+    logger.debug(f'Converting {len(events)} MISP events to STIX objects')
     stix_objects = []
     for event in events:
         bundle = conversion.misp_to_stix(event['Event'])
@@ -64,12 +73,14 @@ def convert_events_to_stix(events, conversion):
             stix_objects.extend(bundle.get('objects', []))
         else:
             stix_objects.extend(bundle.objects)
+    logger.info(f'Converted to {len(stix_objects)} STIX objects')
     return stix_objects
 
 def filter_stix_objects(
     objects, 
     object_id=None, object_type=None, version=None, spec_version=None, added_after=None
 ):
+    logger.debug(f'Filtering STIX objects with provided criteria: id={object_id}, type={object_type}, version={version}, spec_version={spec_version}, added_after={added_after}')
     # custom filters not included in misp  
     def _filter(obj):
         # handle both dict and stix2 objects
@@ -90,6 +101,7 @@ def filter_stix_objects(
             and (not added_after or created >= added_after)
         )
     # only keep objects that pass all filters
+    logger.info(f'Filtering complete. {len([obj for obj in objects if _filter(obj)])} objects match.')
     return [obj for obj in objects if _filter(obj)]
 
 def paginate(objects, limit, next_token):
@@ -100,8 +112,9 @@ def paginate(objects, limit, next_token):
     paged = objects[start:end] #current page of items
     more = (limit is not None and total > end) #check if more pages beyond current
     next_value = str(end) if more else None #if there is more, set next token to next start index
+    logger.debug(f'Paginating objects: start={start}, end={end}, more={more}')
     return paged, more, next_value
-#ENDREGION utils
+#endregion utils
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/versions/', tags=['Objects'])
 async def get_object_versions(
@@ -118,10 +131,13 @@ async def get_object_versions(
     check_unknown_filters({'added_after', 'limit', 'next', 'match[spec_version]'}, request)
     # validate some filters
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
+        logger.warning(f'Invalid limit parameter: {limit}')
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
     if added_after: #parse into datetime
         try:added_after_dt = datetime.fromisoformat(added_after)
-        except ValueError:raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
+        except ValueError:
+            logger.warning(f'Invalid added_after parameter: {added_after}')
+            raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
     else:
         added_after_dt = None
 
@@ -143,6 +159,7 @@ async def get_object_versions(
         if timestamp:
             versions.append(timestamp)
     if not versions:
+        logger.warning(f'No versions found for object UUID: {object_uuid}')
         raise HTTPException(status_code=404, detail='Object ID not found')
 
     versions.sort()
@@ -184,10 +201,13 @@ async def get_objects(
     check_unknown_filters({'added_after', 'limit', 'next', 'match[id]', 'match[type]', 'match[version]', 'match[spec_version]'}, request)
     # validate some filters
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
+        logger.warning(f'Invalid limit parameter: {limit}')
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
     if added_after: #parse into datetime
         try: added_after = datetime.fromisoformat(added_after)
-        except: raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
+        except: 
+            logger.warning(f'Invalid added_after parameter: {added_after}')
+            raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
     
     headers = dict(request.headers)
     # translate collection uuid to misp tag name
@@ -235,10 +255,13 @@ async def get_object(
     check_unknown_filters({'added_after', 'limit', 'next', 'match[version]', 'match[spec_version]'}, request)
     # validate some filters
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
+        logger.warning(f'Invalid limit parameter: {limit}')
         raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
     if added_after: #parse into datetime
         try: added_after = datetime.fromisoformat(added_after)
-        except: raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
+        except: 
+            logger.warning(f'Invalid added_after parameter: {added_after}')
+            raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
         
     headers = dict(request.headers)
     # translate collection uuid to misp tag name
@@ -289,19 +312,24 @@ async def add_objects(
     
     _, perm_add =misp.get_user_perms(headers=headers) #check user perms
     if not perm_add:
+        logging.warning(f'Permission denied for adding objects to collection {collection_uuid}')
         raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
     if headers.get('content-type') != 'application/taxii+json;version=2.1':
+        logging.warning(f'Unsupported content type: {headers.get("content-type")}')
         raise HTTPException(status_code=415, detail='The client attempted to POST a payload with a content type the server does not support') 
     if int(headers.get('content-length', 0)) > get_content_size(api_root):
+        logging.warning(f'Payload too large: {headers.get("content-length")}')
         raise HTTPException(status_code=413, detail='The POSTed payload exceeds the max_content_length of the API Root')
 
     # convert collection uuid to misp id
-    misp_response = misp.query_misp_api('/tags/index', headers=headers)
-    tags = misp_response.get('Tag', [])
-    tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
-    if not tag:
-        raise HTTPException(status_code=404, detail='Collection ID not found')
-    collection_name = tag['name']
+    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers)
+    # misp_response = misp.query_misp_api('/tags/index', headers=headers)
+    # tags = misp_response.get('Tag', [])
+    # tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
+    # if not tag:
+    #     logging.error(f'Collection UUID not found: {collection_uuid}')
+    #     raise HTTPException(status_code=404, detail='Collection ID not found')
+    # collection_name = tag['name']
     
     # convert dict to stix bundle if needed
     try:
@@ -361,11 +389,15 @@ async def add_objects(
         status ='complete'
     except requests.exceptions.HTTPError as e:
         # print(e)
-        if e.response.status_code==403: raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
+        if e.response.status_code==403: 
+            logging.warning(f'Permission denied for adding objects to collection {collection_uuid}')
+            raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
         
         #cannot add objects with same uuid, throws errors with different origins and codes
-        if e.response.status_code ==404: raise HTTPException(status_code=400, detail='Atempted to add object with the same UUID as another object already in MISP')
-        
+        if e.response.status_code ==404: 
+            logging.warning(f'Attempted to add object with the same UUID as another object already in MISP: {collection_uuid}')
+            raise HTTPException(status_code=400, detail='Atempted to add object with the same UUID as another object already in MISP')
+
         # taxii fields for failed upload
         status = 'pending'
         success_count =0
@@ -377,9 +409,11 @@ async def add_objects(
         
     try:
         if 'Event' not in result:
+            logging.error('Failed to add event to MISP, unknown error')
             raise HTTPException(status_code=400, detail='Failed to add event to MISP, unknown error')
     except requests.exceptions.HTTPError as e:
         if e.status_code==403: #cannot add objects with same uuid, throws errors with different origins and codes
+            logging.warning(f'Attempted to add object with the same UUID as another object already in MISP: {collection_uuid}')
             raise HTTPException(status_code=400, detail='Duplicate objects')
 
     response.headers['Content-Type'] = 'application/taxii+json;version=2.1'
