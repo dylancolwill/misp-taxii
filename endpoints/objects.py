@@ -376,7 +376,14 @@ async def add_objects(
         event_json = {'Event': event_json}
         
     # get all object ids from incoming bundle
-    object_ids = [obj['id'] for obj in bundle.objects if isinstance(obj, dict) and 'id' in obj]
+    object_ids = []
+    for obj in getattr(bundle, 'objects', []) or []:
+        if isinstance(obj, dict):
+            oid = obj.get('id')
+        else:
+            oid = getattr(obj, 'id', None)
+        if oid:
+            object_ids.append(oid)
        
     try:
         result = misp.query_misp_api('/events/add', method='POST', headers=headers, data=event_json)
