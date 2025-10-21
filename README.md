@@ -43,6 +43,8 @@ curl -X GET "http://127.0.0.1:8000/taxii2/" \
 or check `tests/discovery_test.py` for Python example. To run tests, MISP auth key is required to be set in `creds.py`.
 
 
+Additionally, open `demo/index.html` for a visual interaction.
+
 ## To Do
 - [x] function in misp.py to check user perms, will need for can_write and can_read collections
 - [x] verify responses follow spec

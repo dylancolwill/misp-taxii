@@ -29,24 +29,27 @@ def get_manifests(collection_uuid: str,
     headers = dict(request.headers)
     
     # query misp for all tags using headers
-    print('getting all misp tags...')
+    logger.debug(f'Fetching collections')
     try:
         misp_response = misp.query_misp_api('/tags/index', headers=headers)
         tags = misp_response.get('Tag')  #returns a list of tag dicts
+        logger.info(f'Fetched {len(tags) if tags else 0} tags from MISP')
     except requests.exceptions.HTTPError as e:
         if e.status_code==403:
+            logger.warning('Permission denied for accessing collections')
             raise HTTPException(status_code=403, detail='The client does not have access to this manifest resource')
     
     # find matching tag, need to convert each collection id to uuid
-    print('comparing each tag id to user inputted uuid...')
+    logger.debug(f'Fetching collection tag for UUID: {collection_uuid}')
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
+        logger.error(f'Collection UUID not found: {collection_uuid}')
         raise HTTPException(status_code=404, detail='Collection ID not found')
     collection_name = tag['name'] #used to fetch matching events
     # print(collection_name)
     
     # setup payload to use in misp request
-    print('getting related misp events...')
+    logger.debug(f'Fetching events for collection: {collection_name}')
     payload = {
         'tags': collection_name,
         'returnFormat': 'json'
@@ -63,8 +66,11 @@ def get_manifests(collection_uuid: str,
     # query misp for events matching this collection using restSearch
     misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
     events=misp_response['response']
-    
+
+    logger.info(f'Fetched {len(events)} events from MISP for collection: {collection_name}')
+
     # convert each misp event into stix
+    logger.debug(f'Converting {len(events)} MISP events to STIX objects')
     objects = []
     for event in events:
         event=event['Event'] #misp wraps event inside, {'Event': {}}
@@ -103,6 +109,7 @@ def get_manifests(collection_uuid: str,
         try:
             added_after = datetime.fromisoformat(added_after)
         except ValueError:
+            logger.error(f'Invalid added_after parameter: {added_after}')
             raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
     else:
         added_after = None              
@@ -120,6 +127,8 @@ def get_manifests(collection_uuid: str,
         #for each object, checks the if condition, if true is included in new list, if false skips
         # if no filters are applied, every condition is true, all are included in list
     ]
+    
+    logger.info(f'Filtering complete. {len(filtered_manifests)} manifests match.')
     
     manifests=filtered_manifests
     
