@@ -40,7 +40,7 @@ curl -X GET "http://127.0.0.1:8000/taxii2/" \
   -H "Accept: application/taxii+json;version=2.1" \
   -H "Content-Type: application/taxii+json;version=2.1"
 ```
-or check `tests/discovery_test.py` for Python example.
+or check `tests/discovery_test.py` for Python example. To run tests, MISP auth key is required to be set in `creds.py`.
 
 
 ## To Do
@@ -65,5 +65,5 @@ or check `tests/discovery_test.py` for Python example.
 - [x] ability to view headers in demo
 - [x] failure responses
   - [ ] test all responses
-- [ ] finish install and usage instructions
+- [x] finish install and usage instructions
 - [x] include spec_version
