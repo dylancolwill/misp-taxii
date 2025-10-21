@@ -17,7 +17,6 @@ def get_misp_collections(request: Request = None, response: Response = None):
     """
     # extract headers from initial request
     headers = dict(request.headers)
-    print(headers)
     
     # query misp for all tags using headers
     logger.debug(f'Fetching collections')
@@ -31,7 +30,6 @@ def get_misp_collections(request: Request = None, response: Response = None):
             raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
 
     # determine user permissions from misp
-    logger.debug(f'Getting user permissions')
     can_write,_=misp.get_user_perms(headers=headers) #function to check write access
     
     # convert each misp tag into taxii collection object

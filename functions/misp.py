@@ -26,6 +26,7 @@ def get_user_perms(headers=None):
     function to check if the user has writing perms
     required for some endpoints
     """
+    logger.debug(f'Getting user permissions')
     
     response = query_misp_api('/users/view/me', headers=headers)
     perm_modify = response['Role']['perm_modify']
