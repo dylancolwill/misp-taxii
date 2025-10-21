@@ -6,15 +6,14 @@ import uuid
 def str_to_uuid(string):
     return str(uuid.uuid5(uuid.NAMESPACE_OID, str(string)))
 
-def stix_to_misp(stix):
-    pass
-
 def misp_to_stix(event):
     # takes misp event converts to json
     parser21 = MISPtoSTIX21Parser()
     parser21.parse_misp_event(event)
     return parser21.bundle
 
-def json_to_stix(json):
-    obj = parse(json)
-    print(obj)
+def datetime_to_iso(dt):
+    # convert datetime into iso
+    if hasattr(dt, 'isoformat'):
+        return dt.isoformat()
+    return str(dt)

@@ -35,6 +35,8 @@
                         <button type="button" class="btn btn-primary"
                             id="btnGetObj">Get Object</button>
                         <button type="button" class="btn btn-primary"
+                            id="btnAddObj">Add Object</button>
+                        <button type="button" class="btn btn-primary"
                             id="btnManifests">Manifests</button>
                         <button type="button" class="btn btn-primary"
                             id="btnVersions">Object Versions</button>
@@ -47,8 +49,9 @@
                         <div class="panel-body">
                             <input type="text" id="requestUrl"
                                 class="form-control"
-                                style="margin-bottom: 10px;">
-
+                                style="margin-bottom: 10px;" placeholder="URL">
+                            <textarea id="headers" class="form-control" rows="5" style="margin-bottom: 10px;" placeholder="Headers"></textarea>
+                            <textarea id="requestData" class="form-control" rows="8" style="margin-bottom: 10px;" placeholder="Request body"></textarea>
                             <button id="sendRequest" class="btn btn-success"
                                 style="margin-top: 10px;">Send Request</button>
                         </div>

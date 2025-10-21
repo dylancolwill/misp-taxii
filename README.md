@@ -21,16 +21,29 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+By default, the server runs on localhost at port 8000. This can be configured inside `main.py`, see the [FasiAPI server deployment docs](https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program), or additionally, [running behind a proxy](https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/).
+
+
+MISP IP must be configured before starting the server, this can be set in `functions/misp.py`.
+
+
 To start the server, run `main.py`
 ```
 python main.py
 ```
 
-By default, the server is run on localhost port 8000
-Start by sending a request to the discovery endpoint with required headers
-```
 
+Begin by sending a request to the discovery endpoint with required headers
 ```
+curl -X GET "http://127.0.0.1:8000/taxii2/" \
+  -H "Authorization: <YOUR_API_KEY>" \
+  -H "Accept: application/taxii+json;version=2.1" \
+  -H "Content-Type: application/taxii+json;version=2.1"
+```
+or check `tests/discovery_test.py` for Python example. To run tests, MISP auth key is required to be set in `creds.py`.
+
+
+Additionally, open `demo/index.html` for a visual interaction.
 
 ## To Do
 - [x] function in misp.py to check user perms, will need for can_write and can_read collections
@@ -51,7 +64,8 @@ Start by sending a request to the discovery endpoint with required headers
   - [ ] change print statements to debug log
 - [x] ensure correct response headers
 - [ ] ~~include ability to return taxii and stix~~
-- [ ] ability to view headers in demo
+- [x] ability to view headers in demo
 - [x] failure responses
   - [ ] test all responses
-- [ ] finish install and usage instructions
+- [x] finish install and usage instructions
+- [x] include spec_version

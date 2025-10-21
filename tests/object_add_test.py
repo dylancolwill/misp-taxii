@@ -15,9 +15,7 @@ grouping_uuid = str(uuid.uuid4())
 indicator_uuid = str(uuid.uuid4())
 bundle_uuid = str(uuid.uuid4())
 
-stix_bundle = {
-    "type": "bundle",
-    "id": f"bundle--{bundle_uuid}",
+taxii_envelope = {
     "objects": [
         {
             "type": "identity",
@@ -63,7 +61,6 @@ stix_bundle = {
     ],
 }
 
-
-resp = requests.post(url, headers=headers, json=stix_bundle)
+resp = requests.post(url, headers=headers, json=taxii_envelope)
 print("Status:", resp.status_code)
 pprint.pp(resp.json())
