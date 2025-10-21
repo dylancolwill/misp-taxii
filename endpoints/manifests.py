@@ -10,7 +10,9 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/manifests', tags=['Manifests'])
-def get_manifests(collection_uuid: str,
+def get_manifests(
+    collection_uuid: str,
+    api_root: str,
     added_after: str = Query(None, alias='added_after'),
     limit: int = Query(None, alias='limit'),
     next_token: str = Query(None, alias='next'), #taxii next
@@ -31,7 +33,7 @@ def get_manifests(collection_uuid: str,
     # query misp for all tags using headers
     logger.debug(f'Fetching collections')
     try:
-        misp_response = misp.query_misp_api('/tags/index', headers=headers)
+        misp_response = misp.query_misp_api('/tags/index', headers=headers, api_root=api_root)
         tags = misp_response.get('Tag')  #returns a list of tag dicts
         logger.info(f'Fetched {len(tags) if tags else 0} tags from MISP')
     except requests.exceptions.HTTPError as e:
@@ -64,7 +66,7 @@ def get_manifests(collection_uuid: str,
         payload['page'] = int(next_token) 
     
     # query misp for events matching this collection using restSearch
-    misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload)
+    misp_response = misp.query_misp_api('/events/restSearch', method='POST',  headers=headers, data=payload, api_root=api_root)
     events=misp_response['response']
 
     logger.info(f'Fetched {len(events)} events from MISP for collection: {collection_name}')

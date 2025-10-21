@@ -33,13 +33,13 @@ def check_unknown_filters(allowed_filters, request):
             detail=f'Unknown filter(s): {", ".join(unknown_filters)}'
         )
 
-def fetch_collection_tag(collection_uuid, misp, conversion, headers):
+def fetch_collection_tag(collection_uuid, misp, conversion, headers, api_root):
     logger.debug(f'Fetching collection tag for UUID: {collection_uuid}')
     # get collection name from misp by matching passed uuid to tag id
     # misp tags are used to represent taxii collections
     
     # get all tags from misp
-    misp_response = misp.query_misp_api('/tags/index', headers=headers)
+    misp_response = misp.query_misp_api('/tags/index', headers=headers, api_root=api_root)
     tags = misp_response.get('Tag', [])
     # find the tag name that matches the collection uuid after converting
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
@@ -49,7 +49,7 @@ def fetch_collection_tag(collection_uuid, misp, conversion, headers):
     logger.info(f'Found collection name: {tag["name"]} for UUID: {collection_uuid}')
     return tag['name']
 
-def fetch_events(collection_name, misp, headers, added_after=None, next_token=None, limit =None):
+def fetch_events(collection_name, misp, headers, added_after=None, next_token=None, limit =None, api_root=None):
     logger.debug(f'Fetching events for collection: {collection_name}')
     payload = {'tags': collection_name, 'returnFormat': 'json'}
     if added_after:
@@ -59,7 +59,7 @@ def fetch_events(collection_name, misp, headers, added_after=None, next_token=No
     if limit:
         payload['limit'] = int(limit)
     # send request to misp with additional search parameters
-    response = misp.query_misp_api('/events/restSearch', method='POST', headers=headers, data=payload)
+    response = misp.query_misp_api('/events/restSearch', method='POST', headers=headers, data=payload, api_root=api_root)
     logger.info(f'Fetched {len(response.get("response", []))} events from MISP for collection: {collection_name}')
     return response.get('response', [])
 
@@ -122,6 +122,7 @@ def paginate(objects, limit, next_token):
 async def get_object_versions(
     collection_uuid: str,
     object_uuid: str,
+    api_root: str,
     added_after: str = Query(None),
     limit: int = Query(None),
     next_token: str = Query(None),
@@ -145,9 +146,9 @@ async def get_object_versions(
 
     headers = dict(request.headers)
     # translate collection uuid to misp tag name
-    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers) 
+    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers, api_root=api_root) 
     # get all misp events under tag name
-    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit)
+    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit, api_root=api_root)
     # convert events to stix objects
     stix_objects = convert_events_to_stix(events, conversion)
     
@@ -189,6 +190,7 @@ async def get_object_versions(
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/objects/', tags=['Objects'])
 async def get_objects(
     collection_uuid: str,
+    api_root: str,
     added_after: str = Query(None, alias='added_after'),
     limit: int = Query(None, alias='limit'),
     next_token: str = Query(None, alias='next'),
@@ -213,9 +215,9 @@ async def get_objects(
     
     headers = dict(request.headers)
     # translate collection uuid to misp tag name
-    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers) 
+    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers, api_root=api_root) 
     # get all misp events under tag name
-    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit)
+    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit, api_root=api_root)
     # convert events to stix objects
     stix_objects = convert_events_to_stix(events, conversion)
     
@@ -244,6 +246,7 @@ async def get_objects(
 async def get_object(
     collection_uuid: str,
     object_uuid: str,
+    api_root: str,
     added_after: str = Query(None, alias='added_after'),
     limit: int = Query(None, alias='limit'),
     next_token: str = Query(None, alias='next'),
@@ -267,9 +270,9 @@ async def get_object(
         
     headers = dict(request.headers)
     # translate collection uuid to misp tag name
-    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers) 
+    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers, api_root=api_root) 
     # get all misp events under tag name
-    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit)
+    events = fetch_events(collection_name, misp, headers, added_after, next_token, limit, api_root=api_root)
     # convert events to stix objects
     stix_objects = convert_events_to_stix(events, conversion)
     
@@ -311,8 +314,8 @@ async def add_objects(
     # print(headers)
     
     # checks before processing
-    
-    _, perm_add =misp.get_user_perms(headers=headers) #check user perms
+
+    _, perm_add =misp.get_user_perms(headers=headers, api_root=api_root) #check user perms
     if not perm_add:
         logging.warning(f'Permission denied for adding objects to collection {collection_uuid}')
         raise HTTPException(status_code=403, detail='The client does not have access to write to this objects resource')
@@ -324,7 +327,7 @@ async def add_objects(
         raise HTTPException(status_code=413, detail='The POSTed payload exceeds the max_content_length of the API Root')
 
     # convert collection uuid to misp id
-    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers)
+    collection_name = fetch_collection_tag(collection_uuid, misp, conversion, headers, api_root=api_root)
     # misp_response = misp.query_misp_api('/tags/index', headers=headers)
     # tags = misp_response.get('Tag', [])
     # tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
@@ -405,7 +408,7 @@ async def add_objects(
             object_ids.append(oid)
        
     try:
-        result = misp.query_misp_api('/events/add', method='POST', headers=headers, data=event_json)
+        result = misp.query_misp_api('/events/add', method='POST', headers=headers, data=event_json, api_root=api_root)
 
         # taxii fields for successful upload
         success_count =len(object_ids)
