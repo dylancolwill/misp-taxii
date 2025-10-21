@@ -7,6 +7,7 @@ function generateUUID() {
 
 function getHeaders() {
     return {
+        // add your MISP auth key here
         "Authorization": "w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K",
         "Accept": "application/taxii+json;version=2.1",
         "Content-Type": "application/taxii+json;version=2.1"
