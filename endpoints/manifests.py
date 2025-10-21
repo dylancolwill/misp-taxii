@@ -75,7 +75,6 @@ def get_manifests(collection_uuid: str,
     for event in events:
         event=event['Event'] #misp wraps event inside, {'Event': {}}
         stixObject = conversion.misp_to_stix(event) #call function to handle conversion
-        print("Passed STIX Conversion")
         objects.append(stixObject)
         
     # # custom filters not included in misp
@@ -91,8 +90,6 @@ def get_manifests(collection_uuid: str,
     for bundle in objects:  # each item is a stix bundle
         for obj in bundle.objects:
             if obj.type != 'identity': #identity not needed 
-                print('date added:', getattr(obj, 'created', None))
-                print(obj)
                 date_added =getattr(obj, 'created', None)
                 if (date_added ==None):
                     continue  #skip objects without created date, per spec
@@ -128,8 +125,7 @@ def get_manifests(collection_uuid: str,
         # if no filters are applied, every condition is true, all are included in list
     ]
     
-    logger.info(f'Filtering complete. {len(filtered_manifests)} manifests match.')
-    
+    logger.info(f'Filtering complete. {len(filtered_manifests)} manifests match.')    
     manifests=filtered_manifests
     
     # taxii pagination
@@ -142,8 +138,6 @@ def get_manifests(collection_uuid: str,
         more = True
         next_value = str(end)
         
-    print('complete')
-    
     # add required response headers per spec
     if date_added_list:
         response.headers['X-TAXII-Date-Added-First'] = min(date_added_list).isoformat()
