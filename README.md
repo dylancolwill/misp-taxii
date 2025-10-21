@@ -9,9 +9,10 @@ This project provides a TAXII 2.1 API interface for MISP, allowing clients to in
 ## Install
 Download the latest repository and create a virtual environment
 ```
-git clone https://github.com/dylancolwill/misp-taxii.git && cd misp-taxii
+git clone https://github.com/dylancolwill/misp-taxii.git
+cd misp-taxii
 python -m venv venv
-./venv/Scripts/activate (Windows)
+.\venv\Scripts\activate (Windows)
 source ./venv/bin/activate (Linux/macOS)
 ```
 
