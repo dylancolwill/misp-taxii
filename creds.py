@@ -1,4 +1,4 @@
 def get_creds():
-    # ADD MISP API KEY HERE
+    # ADD MISP AUTH KEY HERE
     auth=""
     return auth
