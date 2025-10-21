@@ -10,7 +10,10 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.get('/taxii2/{api_root}/collections/', tags=['Collections'])
-def get_misp_collections(request: Request = None, response: Response = None):
+def get_misp_collections(
+    api_root: str,
+    request: Request = None, 
+    response: Response = None):
     """
     fetch all misp tags and convert them into taxii 2.1 collections.
     each tag becomes a collection.
@@ -21,7 +24,7 @@ def get_misp_collections(request: Request = None, response: Response = None):
     # query misp for all tags using headers
     logger.debug(f'Fetching collections')
     try:
-        misp_response = misp.query_misp_api('/tags/index', headers=headers)
+        misp_response = misp.query_misp_api('/tags/index', headers=headers, api_root=api_root)
         tags = misp_response.get('Tag')  #returns a list of tag dicts
         logger.info(f'Fetched {len(tags) if tags else 0} tags from MISP')
     except requests.exceptions.HTTPError as e:
@@ -30,8 +33,8 @@ def get_misp_collections(request: Request = None, response: Response = None):
             raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
 
     # determine user permissions from misp
-    can_write,_=misp.get_user_perms(headers=headers) #function to check write access
-    
+    can_write,_=misp.get_user_perms(headers=headers, api_root=api_root) #function to check write access
+
     # convert each misp tag into taxii collection object
     collections = []
     for tag in tags:
@@ -51,7 +54,11 @@ def get_misp_collections(request: Request = None, response: Response = None):
     return {'collections':collections}
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}', tags=['Collections'])
-def get_misp_collection(collection_uuid: str, request: Request, response: Response):
+def get_misp_collection(
+    collection_uuid: str, 
+    api_root: str,
+    request: Request, 
+    response: Response):
     """
     since taxii requires uuid and misp id, need to fetch all tags and filter in code, cannot query for id
     """
@@ -61,7 +68,7 @@ def get_misp_collection(collection_uuid: str, request: Request, response: Respon
     # query misp for all tags using headers
     logger.debug(f'Fetching collections')
     try:
-        misp_response = misp.query_misp_api('/tags/index', headers=headers)
+        misp_response = misp.query_misp_api('/tags/index', headers=headers, api_root=api_root)
         tags = misp_response.get('Tag')  #returns a list of tag dicts
         logger.info(f'Fetched {len(tags) if tags else 0} tags from MISP')
     except requests.exceptions.HTTPError as e:
@@ -70,8 +77,7 @@ def get_misp_collection(collection_uuid: str, request: Request, response: Respon
             raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
 
     # determine user permissions from misp
-    logger.debug(f'Getting user permissions')
-    can_write,_=misp.get_user_perms(headers=headers) #get the user perms from function in core
+    can_write,_=misp.get_user_perms(headers=headers, api_root=api_root) #get the user perms from function in core
     
     # find matching tag, converting each collection id to uuid then checking if match
     logger.debug(f'Fetching collection tag for UUID: {collection_uuid}')

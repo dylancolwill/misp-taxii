@@ -3,44 +3,29 @@ import urllib3
 import requests
 from fastapi import Request, HTTPException, Depends
 import logging
+import endpoints.root as root
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 
-# REMOVE BEFORE PRODUCTION
-misp_ip='https://13.239.5.152'
+def get_misp_ip(api_root):
+    from endpoints.root import api_roots_info
+    return api_roots_info[api_root]['ip']
 
-# DONT NEED, AUTH IN EVERY REQUEST INSTEAD
-# init
-# misp = ExpandedPyMISP(misp_ip, auth)
-
-# def connect():
-#     """
-#     return callable misp client to use in other modules
-#     """
-#     return misp
-
-def get_user_perms(headers=None):
+def get_user_perms(headers=None, api_root=None):
     """
     function to check if the user has writing perms
     required for some endpoints
     """
     logger.debug(f'Getting user permissions')
     
-    response = query_misp_api('/users/view/me', headers=headers)
+    response = query_misp_api('/users/view/me', headers=headers, api_root=api_root)
     perm_modify = response['Role']['perm_modify']
     perm_add = response['Role']['perm_add']
     
     logger.debug(f'User perms - modify: {perm_modify}, add: {perm_add}')
     return perm_modify, perm_add
-
-def get_headers(request: Request):
-    api_key = request.headers.get('Authorization') 
-    # print(f'GETHEADER{api_key}')
-    # if not api_key:
-    #     raise HTTPException(status_code=401, detail='Missing MISP API key')
-    return dict(request.headers)
 
 def headers_verify(headers):
     # check if header is passed
@@ -59,7 +44,7 @@ def headers_verify(headers):
         raise HTTPException(status_code=406, detail='The media type provided in the Accept header is invalid')
     # logger.debug('Header verification complete')
 
-def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
+def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None, api_root =None):
     """
     function to call misp api dynamically
     allows other modules to query without duplicating logic
@@ -67,6 +52,8 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     
     #set headers to lower case for consistency
     headers = {k.lower(): v for k, v in headers.items()}
+    
+    misp_ip = get_misp_ip(api_root)
     
     logger.info(f'Querying MISP API: {endpoint} with method {method}')
     
@@ -83,6 +70,7 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
     
     url = f'{misp_ip}{endpoint}'
     
+    # send request with appropriate method
     logger.debug(f'Making {method} request to MISP URL: {url}')
     try:
         if method.upper() == 'GET':
@@ -102,9 +90,5 @@ def query_misp_api(endpoint: str, method: str = 'GET', data=None, headers=None):
             raise HTTPException(status_code=403, detail='The client does not have access to this resource')
         else:
             raise HTTPException(status_code=400, detail='The server did not understand the request')
-
-    # raise http errors
-    
-    # print('misp.py')
-    # print(response)
+        
     return response.json()
