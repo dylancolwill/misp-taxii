@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, Request, HTTPException, Response
 import functions.misp as misp
 import functions.conversion as conversion
 import requests
-import uuid
+import logging
 
 # api router instance to use with fastapi server
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 @router.get('/taxii2/{api_root}/collections/', tags=['Collections'])
 def get_misp_collections(request: Request = None, response: Response = None):
@@ -18,16 +20,18 @@ def get_misp_collections(request: Request = None, response: Response = None):
     print(headers)
     
     # query misp for all tags using headers
-    print('getting all misp tags...')
+    logger.debug(f'Fetching collections')
     try:
         misp_response = misp.query_misp_api('/tags/index', headers=headers)
         tags = misp_response.get('Tag')  #returns a list of tag dicts
+        logger.info(f'Fetched {len(tags) if tags else 0} tags from MISP')
     except requests.exceptions.HTTPError as e:
         if e.status_code==403:
+            logger.warning('Permission denied for accessing collections')
             raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
 
     # determine user permissions from misp
-    print('getting user perms...')
+    logger.debug(f'Getting user permissions')
     can_write,_=misp.get_user_perms(headers=headers) #function to check write access
     
     # convert each misp tag into taxii collection object
@@ -57,22 +61,25 @@ def get_misp_collection(collection_uuid: str, request: Request, response: Respon
     headers = dict(request.headers)
     
     # query misp for all tags using headers
-    print('getting all misp tags...')
+    logger.debug(f'Fetching collections')
     try:
         misp_response = misp.query_misp_api('/tags/index', headers=headers)
         tags = misp_response.get('Tag')  #returns a list of tag dicts
+        logger.info(f'Fetched {len(tags) if tags else 0} tags from MISP')
     except requests.exceptions.HTTPError as e:
         if e.response is not None and e.response.status_code == 403:
+            logger.warning('Permission denied for accessing collections')
             raise HTTPException(status_code=403, detail='The client does not have access to this collection resource')
 
     # determine user permissions from misp
-    print('getting user perms...')
+    logger.debug(f'Getting user permissions')
     can_write,_=misp.get_user_perms(headers=headers) #get the user perms from function in core
     
     # find matching tag, converting each collection id to uuid then checking if match
-    print('comparing each tag id to user inputted uuid...')
+    logger.debug(f'Fetching collection tag for UUID: {collection_uuid}')
     tag = next((t for t in tags if conversion.str_to_uuid(str(t['id'])) == collection_uuid), None)
     if not tag:
+        logger.error(f'Collection UUID not found: {collection_uuid}')
         raise HTTPException(status_code=404, detail='The Collection ID is not found') #error if no matching tag
     
     response.headers['Content-Type']= 'application/taxii+json;version=2.1'
