@@ -2,8 +2,12 @@ from fastapi import APIRouter, Depends, Request, HTTPException, Query, Response
 import functions.misp as misp
 import functions.conversion as conversion
 import requests
+from datetime import datetime
+import logging
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 @router.get('/taxii2/{api_root}/collections/{collection_uuid}/manifests', tags=['Manifests'])
 def get_manifests(collection_uuid: str,
@@ -64,7 +68,6 @@ def get_manifests(collection_uuid: str,
     objects = []
     for event in events:
         event=event['Event'] #misp wraps event inside, {'Event': {}}
-        # convert misp events into STIX
         stixObject = conversion.misp_to_stix(event) #call function to handle conversion
         print("Passed STIX Conversion")
         objects.append(stixObject)
@@ -95,6 +98,15 @@ def get_manifests(collection_uuid: str,
                 })
                 date_added_list.append(obj.created) 
               
+    # added_after as datetime if provided
+    if added_after:
+        try:
+            added_after = datetime.fromisoformat(added_after)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
+    else:
+        added_after = None              
+        
     # custom filters not included in misp
     # need to do after repackaging to not damage bundle
     # if a filter is not set, will be ignored. 
@@ -102,7 +114,9 @@ def get_manifests(collection_uuid: str,
         obj for obj in manifests #creates a new list and loopes over every object
         if (not object_id or obj['id'] == object_id) 
         and (not object_type or obj['id'].split('--', 1)[0] == object_type) #extract stix type from object id
-        and (not version or obj['version'] == version)
+        and (not version or obj['modified'] == version)
+        and (not spec_version or obj.get('spec_version') == spec_version)
+        and (not added_after or obj['date_added'] >= added_after)
         #for each object, checks the if condition, if true is included in new list, if false skips
         # if no filters are applied, every condition is true, all are included in list
     ]

@@ -56,7 +56,7 @@ def fetch_events(collection_name, misp, headers, added_after=None, next_token=No
         payload['date_from'] = added_after #taxii added_after maps to misp date_from
     if next_token:
         payload['page'] = int(next_token) #next_token used as taxii page number
-    if limit is not None:
+    if limit:
         payload['limit'] = int(limit)
     # send request to misp with additional search parameters
     response = misp.query_misp_api('/events/restSearch', method='POST', headers=headers, data=payload)
@@ -186,7 +186,7 @@ async def get_object_versions(
             result['next'] = next_value
     return result
 
-@router.get("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
+@router.get('/taxii2/{api_root}/collections/{collection_uuid}/objects/', tags=['Objects'])
 async def get_objects(
     collection_uuid: str,
     added_after: str = Query(None, alias='added_after'),
@@ -204,12 +204,12 @@ async def get_objects(
     # validate some filters
     if limit is not None and (not isinstance(limit, int) or limit <= 0):
         logger.warning(f'Invalid limit parameter: {limit}')
-        raise HTTPException(status_code=400, detail="Invalid 'limit' parameter. Must be a positive integer.")
+        raise HTTPException(status_code=400, detail='Invalid "limit" parameter. Must be a positive integer.')
     if added_after: #parse into datetime
         try: added_after = datetime.fromisoformat(added_after)
         except: 
             logger.warning(f'Invalid added_after parameter: {added_after}')
-            raise HTTPException(status_code=400, detail="Invalid 'added_after' parameter. Must be ISO date string.")
+            raise HTTPException(status_code=400, detail='Invalid "added_after" parameter. Must be ISO date string.')
     
     headers = dict(request.headers)
     # translate collection uuid to misp tag name
@@ -298,7 +298,7 @@ async def get_object(
         if more: result['next'] = next_value
     return result
 
-@router.post("/taxii2/{api_root}/collections/{collection_uuid}/objects/", tags=["Objects"])
+@router.post('/taxii2/{api_root}/collections/{collection_uuid}/objects/', tags=['Objects'])
 async def add_objects(
     collection_uuid: str,
     api_root: str,
@@ -333,13 +333,30 @@ async def add_objects(
     #     raise HTTPException(status_code=404, detail='Collection ID not found')
     # collection_name = tag['name']
     
+    # accept taxii envelope or stix bundle
+    # if envelope, wrap objects in a stix bundle for processing
+    if 'objects' in stix_bundle and stix_bundle.get('type') != 'bundle':
+        stix_bundle = {
+            'type': 'bundle',
+            'id': f'bundle--{uuid.uuid4()}',
+            'objects': stix_bundle['objects']
+        }
+    
     # convert dict to stix bundle if needed
     try:
         bundle = stix2.parse(stix_bundle, allow_custom=True)
-        if not isinstance(bundle, stix2.Bundle):
-            raise ValueError("Provided data is not a STIX2 Bundle object")
+        # if not isinstance(bundle, stix2.Bundle):
+        #     raise ValueError('Provided data is not a STIX2 Bundle object')
+        # check for supported stix version
+        if getattr(bundle, 'spec_version', '2.1') != '2.1':
+            raise HTTPException(status_code=422, detail='Only STIX 2.1 is supported by this TAXII server.')
+        # check objects for supported spec_version
+        for obj in getattr(bundle, 'objects', []):
+            spec_version = getattr(obj, 'spec_version', None) if not isinstance(obj, dict) else obj.get('spec_version')
+            if spec_version and spec_version != '2.1':
+                raise HTTPException(status_code=422, detail='Only STIX 2.1 objects are supported by this TAXII server.')
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f'Invalid STIX bundle: {e}')
+        raise HTTPException(status_code=422, detail=f'Unprocessable content')
     
     # convert stix bundle to misp event
     try:
@@ -360,8 +377,8 @@ async def add_objects(
     # print(parser.misp_events)
     
     # event = parser.misp_events
-    # print("Event info:", event.info)
-    # print("Number of attributes:", len(event.attributes))
+    # print('Event info:', event.info)
+    # print('Number of attributes:', len(event.attributes))
     # for attr in event.attributes:
     #     print(attr.type, attr.value)
 
