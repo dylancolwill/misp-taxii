@@ -7,7 +7,6 @@ nav:
   - Authentication: authentication.md
   - Conversion: conversion.md
   - Endpoints:
-      - Overview: endpoints/overview.md
       - Get API Root: endpoints/get_api_root.md
       - Get MISP Collections: endpoints/get_misp_collections.md
       - Get MISP Collection: endpoints/get_misp_collection.md
