@@ -2,7 +2,7 @@
 
 **File Location:** `endpoints/objects.py`  
 **Endpoint:**  
-`GET /taxii2/{api_root}/collections/{collection_uuid}/objects/`
+`POST /taxii2/{api_root}/collections/{collection_uuid}/objects/`
 
 *The goal of this endpoint is to add a STIX object to a specific TAXII collection.*
 
