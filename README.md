@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-By default, the server runs on localhost at port 8000. This can be configured inside `main.py`, see the [FasiAPI server deployment docs](https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program), or additionally, [running behind a proxy](https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/).
+By default, the server runs on localhost at port 8000. This can be configured inside `main.py`, see the [FastAPI server deployment docs](https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program), or additionally, [running behind a proxy](https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/).
 
 
 TAXII API roots must be configured before starting the server, this can be set in `endpoints/root.py`.
@@ -46,3 +46,4 @@ or check `tests/discovery_test.py` for Python example. To run tests, MISP auth k
 
 
 Additionally, open `demo/index.html` for a visual interaction, set MISP auth key in `demo/script.js` and update endpoints accordingly, not required but is easier for testing.
+
