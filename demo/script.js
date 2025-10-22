@@ -7,13 +7,8 @@ function generateUUID() {
 
 function getHeaders() {
     return {
-<<<<<<< HEAD
-        // add your MISP auth key here
-        "Authorization": "w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K",
-=======
         // ADD YOUR MISP AUTH KEY HERE
         "Authorization": "", 
->>>>>>> 27775a5 (remove server variables for release)
         "Accept": "application/taxii+json;version=2.1",
         "Content-Type": "application/taxii+json;version=2.1"
     };
@@ -73,37 +68,37 @@ $("#btnDiscovery").click(function() {
 });
 
 $("#btnRoot").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/";
+    const url = "http://127.0.0.1:8000/taxii2/{api_root}/";
     $("#requestUrl").val(url);
     send_request(url);
 });
 
 $("#btnListCol").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/collections/";
+    const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/";
     $("#requestUrl").val(url);
     send_request(url);
 });
 
 $("#btnGetCol").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90";
+    const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}";
     $("#requestUrl").val(url);
     send_request(url);
 });
 
 $("#btnListObj").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/objects/?limit=2";
+    const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/objects/?limit=2";
     $("#requestUrl").val(url);
     send_request(url);
 });
 
 $("#btnGetObj").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/objects/report--59e9ec59-a888-48e4-afb4-441602de0b81";
+    const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}";
     $("#requestUrl").val(url);
     send_request(url);
 });
 
 $("#btnAddObj").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/collections/f37b15ee-07ba-583f-bf65-03e4fd5e9d96/objects/";
+    const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/objects/";
     
     const identity_uuid = generateUUID();
     const grouping_uuid = generateUUID();
@@ -162,13 +157,13 @@ $("#btnAddObj").click(function() {
 });
 
 $("#btnManifests").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/manifests?limit=2";
+    const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/manifests?limit=2";
     $("#requestUrl").val(url);
     send_request(url);
 });
 
 $("#btnVersions").click(function() {
-    const url = "http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/objects/report--59e9ec59-a888-48e4-afb4-441602de0b81/versions";
+    const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/versions";
     $("#requestUrl").val(url);
     send_request(url);
 });
