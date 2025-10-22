@@ -45,4 +45,4 @@ or check `tests/discovery_test.py` for Python example. To run tests, MISP auth k
 
 
 
-Additionally, open `demo/index.html` for a visual interaction and set MISP auth key in `demo/script.js` and update endpoints accordingly, not required but is easier for testing.
+Additionally, open `demo/index.html` for a visual interaction, set MISP auth key in `demo/script.js` and update endpoints accordingly, not required but is easier for testing.
