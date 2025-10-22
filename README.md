@@ -4,6 +4,8 @@
 
 This project provides a TAXII 2.1 API interface for MISP, allowing clients to interact with MISP data using TAXII endpoints.
 
+**[Read the documentation](https://dylancolwill.github.io/misp-taxii/)**
+
 ## Features
 
 ## Install
