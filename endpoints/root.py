@@ -12,11 +12,11 @@ api_roots_info = {
         'description': 'Main ClousMISP connectivity',
         'versions': ['application/taxii+json;version=2.1'],
         'max_content_length': 104857600,  # 100mb
-        'ip': 'https://13.239.5.152'
+        'ip': '' #YOUR MISP IP 
     }
 }
 
-def list_root_keys():
+def list_roots():
     """
     returns list of usable api roots
     for discovery endpoint
@@ -47,5 +47,4 @@ async def get_api_root(api_root: str, request:Request =None):
     if api_root not in api_roots_info:
         raise HTTPException(status_code=404, detail='The API Root is not found')
 
-    # exclude ip from return
-    return {k: v for k, v in api_roots_info[api_root].items() if k != 'ip'}
+    return api_roots_info[api_root]
