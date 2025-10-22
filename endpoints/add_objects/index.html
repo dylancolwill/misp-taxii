@@ -736,7 +736,7 @@
 <h3 id="add_objects"><strong>add_objects</strong></h3>
 <p><strong>File Location:</strong> <code>endpoints/objects.py</code><br />
 <strong>Endpoint:</strong><br />
-<code>GET /taxii2/{api_root}/collections/{collection_uuid}/objects/</code></p>
+<code>POST /taxii2/{api_root}/collections/{collection_uuid}/objects/</code></p>
 <p><em>The goal of this endpoint is to add a STIX object to a specific TAXII collection.</em></p>
 <p><strong>Description</strong><br />
 Allows clients to publish new STIX objects into a TAXII Collection. All submitted objects must be wrapped in a TAXII envelope. The server validates authentication, permissions, and payload format before processing. If the collection’s <code>can_write</code> property is set to false for the client, the request is rejected.</p>
