@@ -1,0 +1,20 @@
+site_name: MISP-TAXII Connector
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Setup: setup.md
+  - Authentication: authentication.md
+  - Conversion: conversion.md
+  - Endpoints:
+      - Overview: endpoints/overview.md
+      - Get API Root: endpoints/get_api_root.md
+      - Get MISP Collections: endpoints/get_misp_collections.md
+      - Get MISP Collection: endpoints/get_misp_collection.md
+      - Add Objects: endpoints/add_objects.md
+      - Get Object: endpoints/get_object.md
+      - Get Objects: endpoints/get_objects.md
+      - Get Object Versions: endpoints/get_object_versions.md
+      - Get Discovery: endpoints/get_discovery.md
+      - Get MISP Manifests: endpoints/get_misp_manifests.md
+  - References: references.md
