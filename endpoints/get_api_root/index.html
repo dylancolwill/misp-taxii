@@ -374,6 +374,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="get_api_root">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -629,6 +671,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="get_api_root">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -650,92 +734,92 @@
   <h1>Get API Root</h1>
 
 <h3 id="get_api_root"><strong>get_api_root</strong></h3>
-<p><em>File Location</em><strong>:</strong> endpoints/root.py</p>
-<p><em>Endpoint</em><strong>:</strong> <br />
-GET /taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/versions/</p>
+<p><strong>File Location:</strong> <code>endpoints/root.py</code></p>
+<p><strong>Endpoint:</strong><br />
+<code>GET /taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/versions/</code></p>
 <p><em>The goal of this endpoint is to provide metadata about the TAXII server, including available API Roots. This allows clients to discover what data and services the server exposes.</em></p>
-<p><em>Description</em><br />
+<p><strong>Description</strong><br />
 This endpoint returns general information about the TAXII server, including its title, description, and the API Roots. Clients can use this as the entry point to explore the server’s available data.</p>
 <p>The API roots are dynamically generated from the server configuration. Access is permission based, clients will only see API Roots if they have access.</p>
-<p>MISP does not have native support for roots equivalent, instead associated with different MISP servers. The MISP IP is defined through API roots and is used in each request. </p>
-<p><em>Example Request</em><br />
-GET http://127.0.0.1:8000/taxii2/</p>
-<p>Authorization: \&lt;misp-api-key&gt;<br />
-Accept: application/taxii+json;version=2.1<br />
-Content-Type: application/taxii+json;version=2.1</p>
+<p>MISP does not have native support for roots equivalent, instead associated with different MISP servers. The MISP IP is defined through API roots and is used in each request.</p>
+<p><strong>Example Request</strong>  </p>
+<pre><code>GET http://127.0.0.1:8000/taxii2/
+
+Authorization: &lt;misp-api-key&gt;
+Accept: application/taxii+json;version=2.1
+Content-Type: application/taxii+json;version=2.1
+</code></pre>
+<h4 id="parameters">Parameters</h4>
 <table>
 <thead>
 <tr>
-<th>Parameters</th>
-<th style="text-align: left;"></th>
-<th style="text-align: left;"></th>
+<th>Name</th>
+<th>Type</th>
+<th>Use</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong><em>Name</em></strong></td>
-<td style="text-align: left;"><strong><em>Type</em></strong></td>
-<td style="text-align: left;"><strong><em>Use</em></strong></td>
+<td>api_root</td>
+<td>str</td>
+<td>The identifier of the TAXII API root.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="raises">Raises</h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401</td>
+<td>The client needs to authenticate. Incorrect header formatting or missing Authorization field.</td>
 </tr>
 <tr>
-<td><em>api_root</em></td>
-<td style="text-align: left;"><em>str</em></td>
-<td style="text-align: left;">The identifier of the TAXII API root.</td>
+<td>403</td>
+<td>The client does not have access to this API root.</td>
 </tr>
 <tr>
-<td><strong>Raises</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td>404</td>
+<td>The requested API root does not exist.</td>
 </tr>
 <tr>
-<td><strong><em>Code</em></strong></td>
-<td style="text-align: left;"><strong><em>Description</em></strong></td>
-<td style="text-align: left;"></td>
+<td>406</td>
+<td>Unsupported media type in Accept header.</td>
 </tr>
+</tbody>
+</table>
+<h4 id="returns">Returns</h4>
+<table>
+<thead>
 <tr>
-<td><em>401</em></td>
-<td style="text-align: left;">The client needs to authenticate. Incorrect header formatting or missing Authorization field.</td>
-<td style="text-align: left;"></td>
+<th>Code</th>
+<th>Body</th>
+<th>Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td><em>403</em></td>
-<td style="text-align: left;">The client does not have access to this API root.</td>
-<td style="text-align: left;"></td>
+<td>200</td>
+<td>{title: str, description: str, versions: str, max_content_length: int}</td>
+<td>Returns a TAXII discovery object containing metadata about the server and its advertised API Roots.</td>
 </tr>
+</tbody>
+</table>
+<h4 id="logic">Logic</h4>
+<table>
+<thead>
 <tr>
-<td><em>404</em></td>
-<td style="text-align: left;">The requested API root does not exist.</td>
-<td style="text-align: left;"></td>
+<th>Step</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td><em>406</em></td>
-<td style="text-align: left;">Unsupported media type in Accept header.</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><strong>Returns</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><strong><em>Code</em></strong></td>
-<td style="text-align: left;"><strong><em>Body</em></strong></td>
-<td style="text-align: left;"><strong><em>Description</em></strong></td>
-</tr>
-<tr>
-<td><em>200</em></td>
-<td style="text-align: left;"><em>{title: str, description: str, versions: str, max_content_length: int}</em></td>
-<td style="text-align: left;">Returns a TAXII discovery object containing metadata about the server and its advertised API Roots.</td>
-</tr>
-<tr>
-<td><strong>Logic</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td>Authenticate the client using request headers. Check whether the specified API root exists in the static dictionary. Return the root information with response headers.</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td>Authenticate the client using request headers. Check whether the specified API root exists in the static dictionary. Return the root information with</td>
 </tr>
 </tbody>
 </table>

@@ -466,6 +466,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="get_object">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -629,6 +671,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="get_object">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -650,131 +734,129 @@
   <h1>Get Object</h1>
 
 <h3 id="get_object"><strong>get_object</strong></h3>
-<p><em>File Location</em><strong>:</strong> endpoints/<a href="http://objects.py">objects.py</a></p>
-<p><em>Endpoint</em><strong>:</strong> <br />
-GET /taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/</p>
+<p><strong>File Location:</strong> <code>endpoints/objects.py</code></p>
+<p><strong>Endpoint:</strong><br />
+<code>GET /taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/</code></p>
 <p><em>The goal of this endpoint is to retrieve a specific object.</em></p>
-<p><em>Description</em><br />
-This endpoint fetches a single STIX object by its UUID from a specified TAXII collection. Internally, it maps the TAXII collection UUID to a MISP tag, retrieves related MISP events, converts them into STIX objects, and filters to return the object matching the supplied object_uuid. Optional query parameters allow further filterin.</p>
-<p><em>Example Request</em><br />
-GET http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/<br />
-objects/report--59e9ec59-a888-48e4-afb4-441602de0b81</p>
-<p>Authorization: \&lt;misp-api-key&gt;<br />
-Accept: application/taxii+json;version=2.1<br />
-Content-Type: application/taxii+json;version=2.1</p>
+<p><strong>Description</strong><br />
+This endpoint fetches a single STIX object by its UUID from a specified TAXII collection. Internally, it maps the TAXII collection UUID to a MISP tag, retrieves related MISP events, converts them into STIX objects, and filters to return the object matching the supplied object_uuid. Optional query parameters allow further filtering.</p>
+<p><strong>Example Request</strong>  </p>
+<pre><code>GET http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/objects/report--59e9ec59-a888-48e4-afb4-441602de0b81
+
+Authorization: &lt;misp-api-key&gt;
+Accept: application/taxii+json;version=2.1
+Content-Type: application/taxii+json;version=2.1
+</code></pre>
+<h4 id="parameters">Parameters</h4>
 <table>
 <thead>
 <tr>
-<th>Parameters</th>
-<th style="text-align: left;"></th>
-<th style="text-align: left;"></th>
+<th>Name</th>
+<th>Type</th>
+<th>Use</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong><em>Name</em></strong></td>
-<td style="text-align: left;"><strong><em>Type</em></strong></td>
-<td style="text-align: left;"><strong><em>Use</em></strong></td>
+<td>api_root</td>
+<td>str</td>
+<td>The identifier of the TAXII API root.</td>
 </tr>
 <tr>
-<td><em>api_root</em></td>
-<td style="text-align: left;"><em>str</em></td>
-<td style="text-align: left;">The identifier of the TAXII API root.</td>
+<td>collection_uuid</td>
+<td>str</td>
+<td>UUID of desired TAXII collection, derived from MISP tag id. Included in API request URL.</td>
 </tr>
 <tr>
-<td><em>collection_uuid</em></td>
-<td style="text-align: left;"><em>str</em></td>
-<td style="text-align: left;">UUID of desired TAXII collection, derived from MISP tag id. Included in API request URL.</td>
+<td>object_uuid</td>
+<td>str</td>
+<td>UUID of desired TAXII object. Included in API request URL.</td>
 </tr>
 <tr>
-<td><em>object_uuid</em></td>
-<td style="text-align: left;"><em>str</em></td>
-<td style="text-align: left;">UUD of desired TAXII object. Included in API request URL.</td>
+<td>added_after</td>
+<td>str, optional</td>
+<td>Retrieve objects created after a certain date. e.g., <code>?added_after=2017-10-21T11:34:57+00:00</code></td>
 </tr>
 <tr>
-<td><em>added_after</em></td>
-<td style="text-align: left;"><em>str, optional</em></td>
-<td style="text-align: left;">Retrieve objects created after a certain date. e.g., ?added_after=2017-10-21T11:34:57+00:00</td>
+<td>limit</td>
+<td>int, optional</td>
+<td>Defines the number of objects to return, must be positive e.g., <code>?limit=2</code></td>
 </tr>
 <tr>
-<td><em>limit</em></td>
-<td style="text-align: left;"><em>int, optional</em></td>
-<td style="text-align: left;">Defines the number of objects to return, must be positive e.g., ?limit=2</td>
+<td>next</td>
+<td>str, optional</td>
+<td>Pagination token used to retrieve subsequent results. e.g., <code>?next=2</code></td>
 </tr>
 <tr>
-<td><em>next</em></td>
-<td style="text-align: left;"><em>str, optional</em></td>
-<td style="text-align: left;">Pagination token used to retrieve subsequent results. e.g., ?next=2</td>
+<td>version</td>
+<td>str, optional</td>
+<td>Version of the object. e.g., <code>?match[version]=2017-10-21T11:34:57+00:00</code></td>
 </tr>
 <tr>
-<td><em>version</em></td>
-<td style="text-align: left;"><em>str, optional</em></td>
-<td style="text-align: left;">Version of the object. e.g., ?match[version]=2017-10-21T11:34:57+00:00</td>
+<td>spec_version</td>
+<td>str, optional</td>
+<td>Filter by STIX specification version. e.g., <code>?match[spec_version]=2.1</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="raises">Raises</h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>The server did not understand the request or filter parameters. Usually non-positive integer has been used as the 'limit' parameter, or added_after parameter was not an ISO date string.</td>
 </tr>
 <tr>
-<td><em>spec_version</em></td>
-<td style="text-align: left;"><em>str, optional</em></td>
-<td style="text-align: left;">Filter by STIX specification version. e.g., ?match[spec_version]=2.1</td>
+<td>401</td>
+<td>The client needs to authenticate. Incorrect header formatting or missing Authorization field.</td>
 </tr>
 <tr>
-<td><strong>Raises</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td>403</td>
+<td>The client does not have access to this object resource. MISP denying access.</td>
 </tr>
 <tr>
-<td><strong><em>Code</em></strong></td>
-<td style="text-align: left;"><strong><em>Description</em></strong></td>
-<td style="text-align: left;"></td>
+<td>404</td>
+<td>The API Root or Collection ID are not found</td>
 </tr>
 <tr>
-<td><em>400</em></td>
-<td style="text-align: left;">The server did not understand the request or filter parameters. Usually non-positive integer has been used as the 'limit' parameter, ‘or added_after parameter was not an ISO date string</td>
-<td style="text-align: left;"></td>
+<td>406</td>
+<td>Unsupported media type in Accept header.</td>
 </tr>
+</tbody>
+</table>
+<h4 id="returns">Returns</h4>
+<table>
+<thead>
 <tr>
-<td><em>401</em></td>
-<td style="text-align: left;">The client needs to authenticate. Incorrect header formatting or missing Authorization field.</td>
-<td style="text-align: left;"></td>
+<th>Code</th>
+<th>Body</th>
+<th>Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td><em>403</em></td>
-<td style="text-align: left;">The client does not have access to this object resource. MISP denying access.</td>
-<td style="text-align: left;"></td>
+<td>200</td>
+<td>{objects:[object]}</td>
+<td>Returns a TAXII envelope containing the requested STIX object.</td>
 </tr>
+</tbody>
+</table>
+<h4 id="logic">Logic</h4>
+<table>
+<thead>
 <tr>
-<td><em>404</em></td>
-<td style="text-align: left;">The API Root or Collection ID are not found</td>
-<td style="text-align: left;"></td>
+<th>Step</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td><em>406</em></td>
-<td style="text-align: left;">Unsupported media type in Accept header.</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><strong>Returns</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><strong><em>Code</em></strong></td>
-<td style="text-align: left;"><strong><em>Body</em></strong></td>
-<td style="text-align: left;"><strong><em>Description</em></strong></td>
-</tr>
-<tr>
-<td><em>200</em></td>
-<td style="text-align: left;"><em>{objects:[object]}</em></td>
-<td style="text-align: left;">Returns a TAXII envelope containing the requested STIX object.</td>
-</tr>
-<tr>
-<td><strong>Logic</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td>Get all MISP tags, convert each tag name to uuid and compare with collection_uuid to find MISP tag. Query MISP for events that have that tag and apply built in MISP filters.  Convert the returned MISP events into STIX objects and flatten them into a single list. Apply any client filters not included in MISP to that list, including finding the specific object via UUID. Slice the filtered list according to limit and next to produce the current page. Build the envelope response and set TAXII response headers.</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td>1. Get all MISP tags, convert each tag name to uuid and compare with collection_uuid to find MISP tag.<br>2. Query MISP for events that have that tag and apply built-in MISP filters.<br>3. Convert the returned MISP events into STIX objects and flatten them into a single list.<br>4. Apply any client filters not included in MISP to that list, including finding the specific object via UUID.<br>5. Slice the filtered list according to limit and next to produce the current page.<br>6. Build the envelope response and set TAXII</td>
 </tr>
 </tbody>
 </table>

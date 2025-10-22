@@ -443,6 +443,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="add_objects">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -629,6 +671,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="add_objects">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -650,117 +734,112 @@
   <h1>Add Objects</h1>
 
 <h3 id="add_objects"><strong>add_objects</strong></h3>
-<p><em>File Location</em><strong>:</strong> endpoints/objects.py</p>
-<p><em>Endpoint</em><strong>:</strong> <br />
-GET /taxii2/{api_root}/collections/{collection_uuid}/objects/</p>
-<p><em>The goal of this endpoint is to add a STIX object to a specific TAXII collection.</em> </p>
-<p><em>Description</em><br />
-Allows clients to publish new STIX objects into a TAXII Collection. All submitted objects must be wrapped in a TAXII envelope. The server validates authentication, permissions, and payload format before processing. If the collection’s can_write property is set to false for the client, the request is rejected.</p>
-<p>If accepted, the endpoint returns a status resource describing whether the submitted objects were successfully processed, are still pending, or failed. Duplicate objects are not permitted. </p>
-<p><em>Example Request</em><br />
-POST http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/</p>
-<p>Authorization: \&lt;misp-api-key&gt;<br />
-Accept: application/taxii+json;version=2.1<br />
-Content-Type: application/taxii+json;version=2.1</p>
-<p>{objects:[object]}</p>
+<p><strong>File Location:</strong> <code>endpoints/objects.py</code><br />
+<strong>Endpoint:</strong><br />
+<code>GET /taxii2/{api_root}/collections/{collection_uuid}/objects/</code></p>
+<p><em>The goal of this endpoint is to add a STIX object to a specific TAXII collection.</em></p>
+<p><strong>Description</strong><br />
+Allows clients to publish new STIX objects into a TAXII Collection. All submitted objects must be wrapped in a TAXII envelope. The server validates authentication, permissions, and payload format before processing. If the collection’s <code>can_write</code> property is set to false for the client, the request is rejected.</p>
+<p>If accepted, the endpoint returns a status resource describing whether the submitted objects were successfully processed, are still pending, or failed. Duplicate objects are not permitted.</p>
+<p><strong>Example Request</strong>  </p>
+<pre><code>POST http://127.0.0.1:8000/taxii2/api1/collections/28dfa8c5-dff4-52ad-90df-e5112b2ade90/
+
+Authorization: &lt;misp-api-key&gt;
+Accept: application/taxii+json;version=2.1
+Content-Type: application/taxii+json;version=2.1
+</code></pre>
+<h4 id="parameters">Parameters</h4>
 <table>
 <thead>
 <tr>
-<th>Parameters</th>
-<th style="text-align: left;"></th>
-<th style="text-align: left;"></th>
+<th>Name</th>
+<th>Type</th>
+<th>Use</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong><em>Name</em></strong></td>
-<td style="text-align: left;"><strong><em>Type</em></strong></td>
-<td style="text-align: left;"><strong><em>Use</em></strong></td>
+<td>api_root</td>
+<td>str</td>
+<td>The identifier of the TAXII API root.</td>
 </tr>
 <tr>
-<td><em>api_root</em></td>
-<td style="text-align: left;"><em>str</em></td>
-<td style="text-align: left;">The identifier of the TAXII API root.</td>
+<td>collection_uuid</td>
+<td>str</td>
+<td>UUID of desired TAXII collection, derived from MISP tag id. Included in API request URL.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="raises">Raises</h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>The server did not understand the request. Invalid JSON or TAXII envelope.</td>
 </tr>
 <tr>
-<td><em>collection_uuid</em></td>
-<td style="text-align: left;"><em>str</em></td>
-<td style="text-align: left;">UUID of desired TAXII collection, derived from MISP tag id. Included in API request URL.</td>
+<td>401</td>
+<td>The client needs to authenticate. Incorrect header formatting or missing Authorization field.</td>
 </tr>
 <tr>
-<td><strong>Raises</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td>403</td>
+<td>The client does not have access to write to this collection resource.</td>
 </tr>
 <tr>
-<td><strong><em>Code</em></strong></td>
-<td style="text-align: left;"><strong><em>Description</em></strong></td>
-<td style="text-align: left;"></td>
+<td>404</td>
+<td>The API Root or Collection ID are not found</td>
 </tr>
 <tr>
-<td><em>400</em></td>
-<td style="text-align: left;">The server did not understand the request. Invalid JSON or TAXII envelope.</td>
-<td style="text-align: left;"></td>
+<td>406</td>
+<td>Unsupported media type in Accept header.</td>
 </tr>
 <tr>
-<td><em>401</em></td>
-<td style="text-align: left;">The client needs to authenticate. Incorrect header formatting or missing Authorization field.</td>
-<td style="text-align: left;"></td>
+<td>413</td>
+<td>The payload exceeds the maximum allowed size.</td>
 </tr>
 <tr>
-<td><em>403</em></td>
-<td style="text-align: left;">The client does not have access to write to this collection resource.</td>
-<td style="text-align: left;"></td>
+<td>415</td>
+<td>The Content-Type is unsupported.</td>
 </tr>
 <tr>
-<td><em>404</em></td>
-<td style="text-align: left;">The API Root or Collection ID are not found</td>
-<td style="text-align: left;"></td>
+<td>422</td>
+<td>The object type, version, or format cannot be processed.</td>
 </tr>
+</tbody>
+</table>
+<h4 id="returns">Returns</h4>
+<table>
+<thead>
 <tr>
-<td><em>406</em></td>
-<td style="text-align: left;">Unsupported media type in Accept header.</td>
-<td style="text-align: left;"></td>
+<th>Code</th>
+<th>Body</th>
+<th>Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td><em>413</em></td>
-<td style="text-align: left;">The payload exceeds the maximum allowed size.</td>
-<td style="text-align: left;"></td>
+<td>202</td>
+<td>{status_resource}</td>
+<td>Request has been accepted. Returns a status resource describing the result.</td>
 </tr>
+</tbody>
+</table>
+<h4 id="logic">Logic</h4>
+<table>
+<thead>
 <tr>
-<td><em>415</em></td>
-<td style="text-align: left;">The Content-Type is unsupported.</td>
-<td style="text-align: left;"></td>
+<th>Step</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td><em>422</em></td>
-<td style="text-align: left;">The object type, version, or format cannot be processed.</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><strong>Returns</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><strong><em>Code</em></strong></td>
-<td style="text-align: left;"><strong><em>Body</em></strong></td>
-<td style="text-align: left;"><strong><em>Description</em></strong></td>
-</tr>
-<tr>
-<td><em>202</em></td>
-<td style="text-align: left;"><em>{status_resource}</em></td>
-<td style="text-align: left;">Request has been accepted. Returns a status resource describing the result.</td>
-</tr>
-<tr>
-<td><strong>Logic</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td>Get all MISP tags, convert each tag name to uuid and compare with collection_uuid to find MISP tag. Parse the TAXII envelope and validate the structure of the contained STIX objects. Push to the collection, if duplicate will deny. Apply any client filters not included in MISP to that list, including finding the specific object via UUID. Generate a status resource with successful, pending, and failed submissions. Return response and set TAXII response headers.</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td>1. Get all MISP tags, convert each tag name to uuid and compare with collection_uuid to find MISP tag.<br>2. Parse the TAXII envelope and validate the structure of the contained STIX objects.<br>3. Push to the collection, if duplicate will deny.<br>4. Apply any client filters not included in MISP to that list, including finding the specific object via UUID.<br>5. Generate a status resource with successful, pending, and failed submissions.<br>6. Return response and set TAXII response</td>
 </tr>
 </tbody>
 </table>

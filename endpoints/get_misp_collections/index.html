@@ -397,6 +397,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="get_misp_collections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -629,6 +671,48 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="get_misp_collections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -650,97 +734,96 @@
   <h1>Get MISP Collections</h1>
 
 <h3 id="get_misp_collections"><strong>get_misp_collections</strong></h3>
-<p><em>File Location</em><strong>:</strong> endpoints/collections.py</p>
-<p><em>Endpoint</em><strong>:</strong> <br />
-GET /taxii2/{api_root}/collections/</p>
+<p><strong>File Location:</strong> <code>endpoints/collections.py</code></p>
+<p><strong>Endpoint:</strong><br />
+<code>GET /taxii2/{api_root}/collections/</code></p>
 <p><em>The goal of this endpoint is to retrieve all TAXII collections.</em></p>
 <p><em>Each MISP tag is treated as a TAXII collection object.</em></p>
-<p><em>Description</em><br />
+<p><strong>Description</strong><br />
 Retrieves all MISP tags accessible to the authenticated user and converts each into a TAXII collection.</p>
 <p>Each collection includes an ID (UUID of the MISP tag ID), title, description, and access permissions.</p>
-<p><em>Example Request</em><br />
-GET http://127.0.0.1:8000/taxii2/api1/collections/</p>
-<p>Authorization: \&lt;misp-api-key&gt;<br />
-Accept: application/taxii+json;version=2.1<br />
-Content-Type: application/taxii+json;version=2.1</p>
+<p><strong>Example Request</strong>  </p>
+<pre><code>GET http://127.0.0.1:8000/taxii2/api1/collections/
+
+Authorization: &lt;misp-api-key&gt;
+Accept: application/taxii+json;version=2.1
+Content-Type: application/taxii+json;version=2.1
+</code></pre>
+<h4 id="parameters">Parameters</h4>
 <table>
 <thead>
 <tr>
-<th>Parameters</th>
-<th style="text-align: left;"></th>
-<th style="text-align: left;"></th>
+<th>Name</th>
+<th>Type</th>
+<th>Use</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong><em>Name</em></strong></td>
-<td style="text-align: left;"><strong><em>Type</em></strong></td>
-<td style="text-align: left;"><strong><em>Use</em></strong></td>
+<td>api_root</td>
+<td>str</td>
+<td>The identifier of the TAXII API root.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="raises">Raises</h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>The server did not understand the request or parameters.</td>
 </tr>
 <tr>
-<td><em>api_root</em></td>
-<td style="text-align: left;"><em>str</em></td>
-<td style="text-align: left;">The identifier of the TAXII API root.</td>
+<td>401</td>
+<td>The client needs to authenticate. Incorrect header formatting or missing Authorization field.</td>
 </tr>
 <tr>
-<td><strong>Raises</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td>403</td>
+<td>The client does not have access to this collections resource.</td>
 </tr>
 <tr>
-<td><strong><em>Code</em></strong></td>
-<td style="text-align: left;"><strong><em>Description</em></strong></td>
-<td style="text-align: left;"></td>
+<td>404</td>
+<td>The API Root or Collection ID are not found</td>
 </tr>
 <tr>
-<td><em>400</em></td>
-<td style="text-align: left;">The server did not understand the request or parameters.</td>
-<td style="text-align: left;"></td>
+<td>406</td>
+<td>Unsupported media type in Accept header.</td>
 </tr>
+</tbody>
+</table>
+<h4 id="returns">Returns</h4>
+<table>
+<thead>
 <tr>
-<td><em>401</em></td>
-<td style="text-align: left;">The client needs to authenticate. Incorrect header formatting or missing Authorization field.</td>
-<td style="text-align: left;"></td>
+<th>Code</th>
+<th>Body</th>
+<th>Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td><em>403</em></td>
-<td style="text-align: left;">The client does not have access to this collections resource.</td>
-<td style="text-align: left;"></td>
+<td>200</td>
+<td>{collections:[collections]}</td>
+<td>Returns a TAXII envelope containing a list of collections.</td>
 </tr>
+</tbody>
+</table>
+<h4 id="logic">Logic</h4>
+<table>
+<thead>
 <tr>
-<td><em>404</em></td>
-<td style="text-align: left;">The API Root or Collection ID are not found</td>
-<td style="text-align: left;"></td>
+<th>Step</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td><em>406</em></td>
-<td style="text-align: left;">Unsupported media type in Accept header.</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><strong>Returns</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td><strong><em>Code</em></strong></td>
-<td style="text-align: left;"><strong><em>Body</em></strong></td>
-<td style="text-align: left;"><strong><em>Description</em></strong></td>
-</tr>
-<tr>
-<td><em>200</em></td>
-<td style="text-align: left;"><em>{collections:[collections]}</em></td>
-<td style="text-align: left;">Returns a TAXII envelope containing a list of collections.</td>
-</tr>
-<tr>
-<td><strong>Logic</strong></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr>
-<td>Get all MISP tags. Build response using metadata sourced from list.  Return the envelope response and set TAXII response headers.</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td>1. Get all MISP tags.<br>2. Build response using metadata sourced from list.<br>3. Return the envelope response and set</td>
 </tr>
 </tbody>
 </table>
