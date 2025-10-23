@@ -676,8 +676,8 @@ source ./venv/bin/activate (Linux/macOS)
 <p>To install all the necessary libraries for this project</p>
 <pre><code>pip install -r requirements.txt
 </code></pre>
-<p>By default, the server runs on localhost at port 8000. This can be configured inside main.py, see the <a href="https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program">FasiAPI server deployment docs</a>, or additionally, <a href="https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/">running behind a proxy</a>. By default, error, warning, info and debug logs are returned to the console through Python's logging facility. Levels can be configured in <em>misp.py</em>, alternatively logging can be disabled by setting the level to CRITICAL.<br />
-<em>level=logging.CRITICAL</em></p>
+<p>By default, the server runs on localhost at port 8000. This can be configured inside <code>main.py</code>, see the <a href="https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program">FasiAPI server deployment docs</a>, or additionally, <a href="https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/">running behind a proxy</a>. By default, error, warning, info and debug logs are returned to the console through Python's logging facility. Levels can be configured in <code>functions/misp.py</code>, alternatively logging can be disabled by setting the level to <em>CRITICAL</em>.<br />
+<code>level=logging.CRITICAL</code></p>
 <p>TAXII API roots must be configured before starting the server, this can be set in <code>endpoints/root.py</code>.</p>
 <p>To start the server, run <code>main.py</code></p>
 <pre><code>python main.py
@@ -688,10 +688,12 @@ source ./venv/bin/activate (Linux/macOS)
   -H &quot;Accept: application/taxii+json;version=2.1&quot; \
   -H &quot;Content-Type: application/taxii+json;version=2.1&quot;
 </code></pre>
-<p>or check <code>tests/discovery_test.py</code> for Python example. To run tests, MISP auth key is required to be set in <code>creds.py</code>.</p>
+<p>or check/run <code>tests/discovery_test.py</code> for Python example. To run tests, MISP auth key is required to be set in <code>creds.py</code>.</p>
+<pre><code>python -m tests.discovery_test
+</code></pre>
 <p>Additionally, open <code>demo/index.html</code> for a visual interaction, set MISP auth key in <code>demo/script.js</code> and update endpoints accordingly, not required but is easier for testing.</p>
 <h3 id="misp-query">MISP Query</h3>
-<p>The MISP queries themselves are handled within a file called <em>misp.py</em>, located in the functions folder. When setting up the extension with your own MISP, your MISP IP must be included in an API root.</p>
+<p>The MISP queries themselves are handled within <code>feature/misp.py</code>. When setting up the extension with your own MISP, your MISP IP must be included in an API root.</p>
 <p>If when querying the MISP, via a TAXII endpoint and you receive the 500 error message code. This often means the server is off.</p>
 
 
