@@ -16,8 +16,8 @@ pip install -r requirements.txt
 
 
 
-By default, the server runs on localhost at port 8000\. This can be configured inside main.py, see the [FasiAPI server deployment docs](https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program), or additionally, [running behind a proxy](https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/). By default, error, warning, info and debug logs are returned to the console through Python's logging facility. Levels can be configured in *misp.py*, alternatively logging can be disabled by setting the level to CRITICAL.  
-*level=logging.CRITICAL*
+By default, the server runs on localhost at port 8000\. This can be configured inside `main.py`, see the [FasiAPI server deployment docs](https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program), or additionally, [running behind a proxy](https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/). By default, error, warning, info and debug logs are returned to the console through Python's logging facility. Levels can be configured in `functions/misp.py`, alternatively logging can be disabled by setting the level to *CRITICAL*.  
+`level=logging.CRITICAL`
 
 TAXII API roots must be configured before starting the server, this can be set in `endpoints/root.py`.
 
@@ -34,7 +34,10 @@ curl -X GET "http://127.0.0.1:8000/taxii2/" \
   -H "Accept: application/taxii+json;version=2.1" \
   -H "Content-Type: application/taxii+json;version=2.1"
 ```
-or check `tests/discovery_test.py` for Python example. To run tests, MISP auth key is required to be set in `creds.py`.
+or check/run `tests/discovery_test.py` for Python example. To run tests, MISP auth key is required to be set in `creds.py`.
+```
+python -m tests.discovery_test
+```
 
 
 
@@ -42,6 +45,6 @@ Additionally, open `demo/index.html` for a visual interaction, set MISP auth key
 
 ### MISP Query
 
-The MISP queries themselves are handled within a file called *misp.py*, located in the functions folder. When setting up the extension with your own MISP, your MISP IP must be included in an API root.
+The MISP queries themselves are handled within `feature/misp.py`. When setting up the extension with your own MISP, your MISP IP must be included in an API root.
 
 If when querying the MISP, via a TAXII endpoint and you receive the 500 error message code. This often means the server is off.
