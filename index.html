@@ -60,7 +60,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#executive-summary" class="md-skip">
+        <a href="#overview" class="md-skip">
           Skip to content
         </a>
       
@@ -238,13 +238,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#executive-summary" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Executive Summary
+      Overview
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Executive Summary">
+    <nav class="md-nav" aria-label="Overview">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -634,13 +634,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#executive-summary" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Executive Summary
+      Overview
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Executive Summary">
+    <nav class="md-nav" aria-label="Overview">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -675,11 +675,11 @@
 
   <h1>Home</h1>
 
-<h2 id="executive-summary">Executive Summary</h2>
-<p>As of the current moment TAXII and MISP cannot communicate without the utilization of a third party tool, however most existing tools on the market have either been abandoned or have not been updated to TAXII 2.1. Therefore, the need for a new tool to facilitate this communication exists. The documentation laid forth, aims to achieve this communication by querying the MISP and then receiving its response via endpoints, these endpoints then utilise this response in a myriad of ways, the two key utilisations however would be the collections and objects endpoints. The collections endpoint, creates TAXII collections out of MISP tags, allowing for better organisation of STIX objects. The object's endpoint receives MISP events and converts them to STIX objects, this can happen for just one desired event or all events under a specific tag. </p>
+<h3 id="overview">Overview</h3>
+<p>As of the current moment TAXII and MISP cannot communicate without the utilisation of a third party tool, however most existing tools on the market have either been abandoned or have not been updated to TAXII 2.1. Therefore, the need for a new tool to facilitate this communication is present. The documentation laid forth, aims to achieve this communication by querying the MISP server and then receiving its response via endpoints. These endpoints then utilise this response in a myriad of ways. The two key utilisations however would be the collections and objects endpoints. The collections endpoint, creates TAXII collections out of MISP tags, allowing for better organisation of STIX objects. The object's endpoint receives MISP events and converts them to STIX objects, this can happen for just one desired event or all events under a specific tag. </p>
 <p>Github repository link: https://github.com/dylancolwill/misp-taxii</p>
-<h3 id="context-diagram">Context Diagram</h3>
-<p><img alt="" src="context_diagram" /></p>
+<h4 id="context-diagram">Context Diagram</h4>
+<p><img alt="" src="images/context_diagram.png" /></p>
 
 
 
