@@ -599,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../endpoints/get_misp_manifests.md" class="md-nav__link">
+      <a href="../endpoints/get_manifests/" class="md-nav__link">
         
   
   
@@ -746,7 +746,7 @@
 <h3 id="conversion">Conversion</h3>
 <h4 id="uuid">UUID</h4>
 <p>MISP uses tag identification through incremental numerical values and string names. TAXII requires collections to have a version 4 UUID, we have chosen to use tag names as the seed for this conversion. </p>
-<p>MISP tag names are put through <code>functions/conversion.str_to_uuid()</code>, which is assigned to the corresponding TAXII Collection using this UUID. Returned in string format.</p>
+<p>MISP tag names are put through <code>functions/conversion.str_to_uuid()</code>, to generate a UUID, used to identify the corresponding TAXII Collection. Returned in string format.</p>
 <p>UUID version 4 does not take an input field, this function utlises version 5 for deterministic mapping. Since a database is not used in this project, a seed is required to ensure consistency.</p>
 <h4 id="misp-stix">MISP-STIX</h4>
 <p>The function <code>functions/misp.misp_to_stix()</code> is called to convert MISP event data into a STIX 2.1 bundle. Utilising the <code>MISPtoSTIX21Parser</code> function from the <a href="https://github.com/MISP/misp-stix"><code>misp_stix_converter</code></a> library to perform the conversion. </p>
