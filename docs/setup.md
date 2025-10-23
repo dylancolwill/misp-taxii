@@ -47,4 +47,4 @@ Additionally, open `demo/index.html` for a visual interaction, set MISP auth key
 
 The MISP queries themselves are handled within `feature/misp.py`. When setting up the extension with your own MISP, your MISP IP must be included in an API root.
 
-If when querying the MISP, via a TAXII endpoint and you receive the 500 error message code. This often means the server is off.
+If when querying a TAXII endpoint, you receive the 500 error message code. This often means the FastAPI server has not been deployed. 
