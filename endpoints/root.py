@@ -5,7 +5,6 @@ import functions.misp as misp
 router = APIRouter()
 
 # static dictionary holding api root data 
-# MAY NEED TO CHANGE TO BE DYNAMIC
 api_roots_info = {
     'api1': {
         'title': 'Cosive',
