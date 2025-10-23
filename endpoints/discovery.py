@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-# from .root import list_root_keys
-import root
+import endpoints.root as root
 import functions.misp as misp
 
 router = APIRouter()
