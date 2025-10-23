@@ -8,7 +8,7 @@ function generateUUID() {
 function getHeaders() {
     return {
         // ADD YOUR MISP AUTH KEY HERE
-        "Authorization": "", 
+        "Authorization": "w35U4gMEzUl9TBox9kQcOQStIdAb4emdK1SoIY8K", 
         "Accept": "application/taxii+json;version=2.1",
         "Content-Type": "application/taxii+json;version=2.1"
     };
@@ -64,36 +64,42 @@ $("#sendRequest").click(function () {
 $("#btnDiscovery").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/";
     $("#requestUrl").val(url);
+    $("#requestData").val("");
     send_request(url);
 });
 
 $("#btnRoot").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/{api_root}/";
     $("#requestUrl").val(url);
+    $("#requestData").val("");
     send_request(url);
 });
 
 $("#btnListCol").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/";
     $("#requestUrl").val(url);
+    $("#requestData").val("");
     send_request(url);
 });
 
 $("#btnGetCol").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}";
     $("#requestUrl").val(url);
+    $("#requestData").val("");
     send_request(url);
 });
 
 $("#btnListObj").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/objects/?limit=2";
     $("#requestUrl").val(url);
+    $("#requestData").val("");
     send_request(url);
 });
 
 $("#btnGetObj").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}";
     $("#requestUrl").val(url);
+    $("#requestData").val("");
     send_request(url);
 });
 
@@ -159,11 +165,13 @@ $("#btnAddObj").click(function() {
 $("#btnManifests").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/manifests?limit=2";
     $("#requestUrl").val(url);
+    $("#requestData").val("");
     send_request(url);
 });
 
 $("#btnVersions").click(function() {
     const url = "http://127.0.0.1:8000/taxii2/{api_root}/collections/{collection_uuid}/objects/{object_uuid}/versions";
     $("#requestUrl").val(url);
+    $("#requestData").val("");
     send_request(url);
 });
