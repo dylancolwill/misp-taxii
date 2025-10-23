@@ -362,14 +362,16 @@ async def add_objects(
         raise HTTPException(status_code=422, detail=f'Unprocessable content')
     
     # convert stix bundle to misp event
-    try:
-        parser = InternalSTIX2toMISPParser()
-        parser.load_stix_bundle(bundle)
-        parser.parse_stix_bundle()
-        # print(bundle.objects)
-        misp_event = parser.misp_events
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f'Failed to convert STIX to MISP {e}')
+    # try:
+    #     parser = InternalSTIX2toMISPParser()
+    #     parser.load_stix_bundle(bundle)
+    #     parser.parse_stix_bundle()
+    #     # print(bundle.objects)
+    #     misp_event = parser.misp_events
+    # except Exception as e:
+    #     raise HTTPException(status_code=400, detail=f'Failed to convert STIX to MISP {e}')
+    
+    misp_event =conversion.stix_to_misp(bundle)
     
     # attach collection tag to event
     if hasattr(misp_event, 'Tag'):

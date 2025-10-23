@@ -1,7 +1,12 @@
 ### Authentication
 
-The tool handles authentication with MISP by sending the auth key in the header of the request. Therefore, when querying the MISP make sure in `creds.py` file that the auth variable is set to your auth key, otherwise your request will be denied by the MISP.
-Ensure your MISP api key is included where required in [setup instructions](setup.md).
+To remove the need for persistant storage and mapping MISP to TAXII accounts, the MISP auth key is used for authorisation instead. 
+
+The tool handles authentication using the MISP auth key in each request header, sending a request to the MISP server to verify permissions.
+
+When exploring functionality though test files, ensure to include your MISP auth key in `creds.py`, otherwise your TAXII request will be denied by  MISP. 
+
+For more information and examples of usage and requests, check the [setup instructions](setup.md).
 
 #### Sequence Diagram
 ![](images/sequence_diagram.png)

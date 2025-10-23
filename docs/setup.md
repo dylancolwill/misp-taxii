@@ -14,8 +14,6 @@ To install all the necessary libraries for this project
 pip install -r requirements.txt
 ```
 
-
-
 By default, the server runs on localhost at port 8000\. This can be configured inside `main.py`, see the [FasiAPI server deployment docs](https://fastapi.tiangolo.com/deployment/manually/#run-the-server-program), or additionally, [running behind a proxy](https://fastapi.tiangolo.com/ja/advanced/behind-a-proxy/). By default, error, warning, info and debug logs are returned to the console through Python's logging facility. Levels can be configured in `functions/misp.py`, alternatively logging can be disabled by setting the level to *CRITICAL*.  
 `level=logging.CRITICAL`
 
@@ -26,7 +24,6 @@ To start the server, run `main.py`
 python main.py
 ```
 
-
 Begin by sending a request to the discovery endpoint with required headers
 ```
 curl -X GET "http://127.0.0.1:8000/taxii2/" \
@@ -34,12 +31,10 @@ curl -X GET "http://127.0.0.1:8000/taxii2/" \
   -H "Accept: application/taxii+json;version=2.1" \
   -H "Content-Type: application/taxii+json;version=2.1"
 ```
-or check/run `tests/discovery_test.py` for Python example. To run tests, MISP auth key is required to be set in `creds.py`.
+or check/run `tests/discovery_test.py` for Python example. Ensure to configure enpoints accordingly in test files. To run tests, MISP auth key is required to be set in `creds.py`.
 ```
 python -m tests.discovery_test
 ```
-
-
 
 Additionally, open `demo/index.html` for a visual interaction, set MISP auth key in `demo/script.js` and update endpoints accordingly, not required but is easier for testing.
 
