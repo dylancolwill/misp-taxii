@@ -39,7 +39,7 @@ async def get_api_root(api_root: str, request:Request =None):
     """
     # authenticate
     try:
-        misp.get_user_perms(headers=dict(request.headers))
+        misp.get_user_perms(headers=dict(request.headers), api_root=api_root)
     except HTTPException as e:
         raise HTTPException(status_code=403, detail='The client does not have access to this resource')    
     
