@@ -15,5 +15,6 @@ nav:
       - Get Object: endpoints/get_object.md
       - Get Objects: endpoints/get_objects.md
       - Get Object Versions: endpoints/get_object_versions.md
-      - Get MISP Manifests: endpoints/get_misp_manifests.md
+      - Get MISP Manifests: endpoints/get_manifests.md
+
   - References: references.md
