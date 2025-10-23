@@ -4,7 +4,7 @@
 
 MISP uses tag identification through incremental numerical values and string names. TAXII requires collections to have a version 4 UUID, we have chosen to use tag names as the seed for this conversion. 
 
-MISP tag names are put through `functions/conversion.str_to_uuid()`, which is assigned to the corresponding TAXII Collection using this UUID. Returned in string format.
+MISP tag names are put through `functions/conversion.str_to_uuid()`, to generate a UUID, used to identify the corresponding TAXII Collection. Returned in string format.
 
 UUID version 4 does not take an input field, this function utlises version 5 for deterministic mapping. Since a database is not used in this project, a seed is required to ensure consistency.
 
@@ -24,5 +24,6 @@ The function `functions/conversion.stix_to_misp()` is used to convert STIX 2.1 b
 | Attribute | Indicator, Observable, Vulnerability,Campaign, Custom Object |
 | Object | Indicator, Observable  Vulnerability, Threat Actor, Course of Action, Custom Object |
 | Galaxy | Vulnerability, Threat Actor, Course of Action |
+
 
 The conversion table was acquired from the library's [official repository](https://github.com/MISP/misp-stix). However, it will not be listed here due to size and possibility of library updates.
