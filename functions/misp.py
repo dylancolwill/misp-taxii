@@ -3,15 +3,17 @@ import urllib3
 import requests
 from fastapi import Request, HTTPException, Depends
 import logging
-import endpoints.root as root
+import endpoints.root as root   
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 
-def get_misp_ip(api_root):
-    from endpoints.root import api_roots_info
-    return api_roots_info[api_root]['ip']
+def get_misp_ip(api_root =None):
+    ip = root.api_roots_info[api_root]['ip']
+    if not ip.startswith('https://'):
+        ip = f'https://{ip}'
+    return ip
 
 def get_user_perms(headers=None, api_root=None):
     """
