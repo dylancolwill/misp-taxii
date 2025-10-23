@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from .root import list_root_keys
+# from .root import list_root_keys
+import root
 import functions.misp as misp
 
 router = APIRouter()
@@ -9,7 +10,7 @@ discovery_info= {
     'title': 'CloudMISP TAXII Server',
     'description': 'Integration with CloudMISP and TAXII protocol',
     # 'default': '/taxii2/api1/',  # api root endpoint
-    'api_roots': [f'/taxii2/{key}/' for key in list_root_keys()] #dynamically build api roots defined in root endpoint
+    'api_roots': [f'/taxii2/{key}/' for key in root.list_roots()] #dynamically build api roots defined in root endpoint
 }
 
 # MAY NEED TO AUTH BEFORE?
@@ -20,10 +21,10 @@ async def get_discovery(request:Request =None, ):
     """
     # authenticate
     headers = dict(request.headers)
-    from .root import list_root_keys
-    api_roots = list_root_keys()
+    api_roots = root.list_roots()
     authed = False
 
+    # loop through api roots to see if user has access to any
     for api_root in api_roots:
         try:
             misp.get_user_perms(headers=headers, api_root=api_root)
