@@ -694,7 +694,7 @@ source ./venv/bin/activate (Linux/macOS)
 <p>Additionally, open <code>demo/index.html</code> for a visual interaction, set MISP auth key in <code>demo/script.js</code> and update endpoints accordingly, not required but is easier for testing.</p>
 <h3 id="misp-query">MISP Query</h3>
 <p>The MISP queries themselves are handled within <code>feature/misp.py</code>. When setting up the extension with your own MISP, your MISP IP must be included in an API root.</p>
-<p>If when querying the MISP, via a TAXII endpoint and you receive the 500 error message code. This often means the server is off.</p>
+<p>If when querying a TAXII endpoint, you receive the 500 error message code. This often means the FastAPI server has not been deployed. </p>
 
 
 
