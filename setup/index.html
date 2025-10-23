@@ -688,7 +688,7 @@ source ./venv/bin/activate (Linux/macOS)
   -H &quot;Accept: application/taxii+json;version=2.1&quot; \
   -H &quot;Content-Type: application/taxii+json;version=2.1&quot;
 </code></pre>
-<p>or check/run <code>tests/discovery_test.py</code> for Python example. To run tests, MISP auth key is required to be set in <code>creds.py</code>.</p>
+<p>or check/run <code>tests/discovery_test.py</code> for Python example. Ensure to configure enpoints accordingly in test files. To run tests, MISP auth key is required to be set in <code>creds.py</code>.</p>
 <pre><code>python -m tests.discovery_test
 </code></pre>
 <p>Additionally, open <code>demo/index.html</code> for a visual interaction, set MISP auth key in <code>demo/script.js</code> and update endpoints accordingly, not required but is easier for testing.</p>

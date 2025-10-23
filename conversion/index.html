@@ -331,7 +331,16 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="MISP-STIX">
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stix-misp" class="md-nav__link">
+    <span class="md-ellipsis">
+      STIX-MISP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="STIX-MISP">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -685,7 +694,16 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="MISP-STIX">
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stix-misp" class="md-nav__link">
+    <span class="md-ellipsis">
+      STIX-MISP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="STIX-MISP">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -726,11 +744,15 @@
   <h1>Conversion</h1>
 
 <h3 id="conversion">Conversion</h3>
-<h4 id="uuid"><em>UUID</em></h4>
-<p>The Tag ID of MISP Event Tags, is put through the str_to_uuid() function, which then generates a UUID for the Event Tag. After which a TAXII Collection is made using the Tag UUID.</p>
-<h4 id="misp-stix"><em>MISP-STIX</em></h4>
-<p>The function misp_to_stix() is called to convert the retrieved MISP data after it has been converted into JSON. </p>
-<h5 id="mapping"><strong>Mapping</strong></h5>
+<h4 id="uuid">UUID</h4>
+<p>MISP uses tag identification through incremental numerical values and string names. TAXII requires collections to have a version 4 UUID, we have chosen to use tag names as the seed for this conversion. </p>
+<p>MISP tag names are put through <code>functions/conversion.str_to_uuid()</code>, which is assigned to the corresponding TAXII Collection using this UUID. Returned in string format.</p>
+<p>UUID version 4 does not take an input field, this function utlises version 5 for deterministic mapping. Since a database is not used in this project, a seed is required to ensure consistency.</p>
+<h4 id="misp-stix">MISP-STIX</h4>
+<p>The function <code>functions/misp.misp_to_stix()</code> is called to convert MISP event data into a STIX 2.1 bundle. Utilising the <code>MISPtoSTIX21Parser</code> function from the <a href="https://github.com/MISP/misp-stix"><code>misp_stix_converter</code></a> library to perform the conversion. </p>
+<h4 id="stix-misp">STIX-MISP</h4>
+<p>The function <code>functions/conversion.stix_to_misp()</code> is used to convert STIX 2.1 bundles back into MISP event format. Utilising the <code>InternalSTIX2toMISPParser</code> function from the <a href="https://github.com/MISP/misp-stix"><code>misp_stix_converter</code></a> library to parse the STIX bundle and reconstruct the corresponding MISP events.</p>
+<h5 id="mapping">Mapping</h5>
 <table>
 <thead>
 <tr>
@@ -757,7 +779,7 @@
 </tr>
 </tbody>
 </table>
-<p>The conversion table was acquired from the library's official repository, further detailed mapping for attributes can be acquired from the repository [1]. However, it will not be listed here due to size and possibility of library updates.</p>
+<p>The conversion table was acquired from the library's <a href="https://github.com/MISP/misp-stix">official repository</a>. However, it will not be listed here due to size and possibility of library updates.</p>
 
 
 
