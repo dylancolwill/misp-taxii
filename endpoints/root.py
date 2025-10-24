@@ -7,8 +7,8 @@ router = APIRouter()
 # static dictionary holding api root data 
 api_roots_info = {
     'api1': {
-        'title': 'Cosive',
-        'description': 'Main ClousMISP connectivity',
+        'title': 'MISP',
+        'description': 'Main MISP connectivity',
         'versions': ['application/taxii+json;version=2.1'],
         'max_content_length': 104857600,  # 100mb
         'ip': '' #YOUR MISP IP 
